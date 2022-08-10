@@ -1,11 +1,27 @@
 package MindStore.persistence.models;
 
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
-public class User {
-    private LocalDate dateOfBirth;
-    private String adress;
-    private List<Product> shoppingCart;
+@Getter
+@Setter
+@SuperBuilder
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "users")
+public class User extends Person{
 
+    @Column(nullable = false)
+    private LocalDate dateOfBirth;
+
+    @Column(nullable = false)
+    private String adress;
+
+    @OneToMany(mappedBy = "userId")
+    private List<Product> shoppingCart;
 }
