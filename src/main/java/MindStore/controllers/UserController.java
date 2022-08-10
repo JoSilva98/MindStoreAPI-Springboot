@@ -10,5 +10,3 @@ public class UserController {
         System.out.println("hello");
     }
 }
-//172.22.128.1
-//        10.21.226.130
