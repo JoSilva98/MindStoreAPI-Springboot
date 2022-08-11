@@ -10,7 +10,6 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@ToString
 @Entity
 @Table(name = "roles")
 public class Role {
