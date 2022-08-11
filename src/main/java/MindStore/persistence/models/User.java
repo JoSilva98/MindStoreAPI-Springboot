@@ -23,7 +23,7 @@ public class User extends Person{
     private LocalDate dateOfBirth;
 
     @Column(nullable = false)
-    private String adress;
+    private String address;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
