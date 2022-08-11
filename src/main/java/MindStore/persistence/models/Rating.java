@@ -4,27 +4,26 @@ import lombok.*;
 
 import javax.persistence.*;
 
-//props iguais as da external api para podermos mapear
-
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Getter
 @Setter
+@Builder
 @Entity
-@Table(name = "products")
-public class Product {
+@Table(name = "ratings")
+public class Rating {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true, updatable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id_fk")
-    private Category categoryId;
+    @Column(nullable = false)
+    private double rate;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id_fk")
-    private User userId;
+    @Column(nullable = false)
+    private int count;
+
+    @OneToOne(mappedBy = "ratingId")
+    private Product productId;
 }

@@ -46,17 +46,4 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-
-    //está a ser feito no .body!
-    //                                                      String "statusCode": "404 NOT_FOUND"
-    private Error buildError(Exception e, HttpServletRequest request, String statusCode) {
-        return Error.builder()
-                .timestamp(new Date())
-                .verb(request.getMethod())
-                .path(request.getRequestURI())
-                .statusCode(statusCode)
-                .message(e.getMessage()) //vai buscar a msg que vem da exception
-                .build();
-    }
-
 }
