@@ -39,6 +39,9 @@ public class Product {
     @Column(nullable = false)
     private String image;
 
+    @Column(nullable = false)
+    private int stock;
+
     @ManyToMany(mappedBy = "shoppingCart")
     private Set<User> users;
 
