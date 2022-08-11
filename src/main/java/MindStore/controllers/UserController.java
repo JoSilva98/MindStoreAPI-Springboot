@@ -1,5 +1,6 @@
 package MindStore.controllers;
 
+import MindStore.command.CategoryDto;
 import MindStore.command.ProductDto;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
@@ -29,5 +30,24 @@ public class UserController {
     @GetMapping("/products/byname/{title}")
     public List<ProductDto> getProductByTitle(@PathVariable("title") String title){
         return this.userServiceI.getProductsByTitle(title);
+    }
+
+    @GetMapping("/products/bycategory/{category}")
+    public List<ProductDto> getProductByCategory(@PathVariable("category") String category){
+        return this.userServiceI.getProductByCategory(category);
+    }
+
+    //get product by id
+    //get category by id
+    //sign up user
+
+    @GetMapping("/products/{id}")
+    public ProductDto getProductById(@PathVariable("id") Long id){
+        return this.userServiceI.getProductById(id);
+    }
+
+    @GetMapping("/categories/{id}")
+    public CategoryDto getCategoryById(@PathVariable("id") int id){
+        return this.userServiceI.getCategoryById(id);
     }
 }
