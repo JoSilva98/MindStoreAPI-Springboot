@@ -2,12 +2,8 @@ package MindStore.dataloader;
 
 import MindStore.converters.MainConverterI;
 import MindStore.dataloader.ProductsFetch.ApiProduct;
-import MindStore.persistence.models.Category;
-import MindStore.persistence.models.Product;
-import MindStore.persistence.models.Rating;
-import MindStore.persistence.repositories.CategoryRepository;
-import MindStore.persistence.repositories.ProductRepository;
-import MindStore.persistence.repositories.RatingRepository;
+import MindStore.persistence.models.*;
+import MindStore.persistence.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -26,74 +22,87 @@ public class DataLoader implements ApplicationRunner {
     private final ProductRepository productRepository;
     private final MainConverterI mainConverter;
     private final RatingRepository ratingRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     public void run(ApplicationArguments args) {
-        //criar as categorias na DB para depois objetos da api externa ficarem associadas a estas categorias através
-        //da string categoryType (que é igual a do json da api)
+        externalApi();
 
-//        Category mensClothing = Category.builder()
-//                .category("men's clothing")
-//                .build();
-//
-//        Category womensClothing = Category.builder()
-//                .category("women's clothing")
-//                .build();
-//
-//        Category jewelery = Category.builder()
-//                .category("jewelery")
-//                .build();
-//
-//        Category electronics = Category.builder()
-//                .category("electronics")
-//                .build();
-//
-//        List<Category> categoryList = List.of(mensClothing, womensClothing, jewelery, electronics);
-//        this.categoryRepository.saveAll(categoryList);
+        Role userRole = Role.builder()
+                .roleType("USER")
+                .build();
 
+        Role adminRole = Role.builder()
+                .roleType("ADMIN")
+                .build();
+
+        List<Role> roles = List.of(userRole, adminRole);
+        this.roleRepository.saveAll(roles);
+
+        User user = User.builder()
+                .name("Joaquim Alberto")
+                .email("quim@mail")
+                .password("pass")
+                .dateOfBirth(LocalDate.of(1973, 2, 23))
+                .adress("Rua do Quim, 3800-237")
+                .roleId(userRole)
+                .build();
+
+        this.userRepository.save(user);
+
+        Admin admin = Admin.builder()
+                .name("Ze To")
+                .email("zeto@email.com")
+                .password("ora_esta_bem_entao")
+                .roleId(adminRole)
+                .build();
+
+        this.adminRepository.save(admin);
+    }
+
+    /*
+    funçao que usa rest template para ir buscar o array de products que esta na api externa, (getForEntity porque array)
+
+     */
+    public void externalApi() {
 
         ResponseEntity<ApiProduct[]> response = this.restTemplate.getForEntity("https://fakestoreapi.com/products", ApiProduct[].class);
         ApiProduct[] products = response.getBody();
 
-        //aqui mapeamos cada produto que vem da Api externa como ApiProduct para Product do modelo e gravamos
-        //tb mapeamos o rating porque tb é objeto
-        //as strings tendo o nome igual mapeiam automaticamente
-//        if (products != null) {
-//            Arrays.stream(products)
-//                    .map(product -> {
-//                        Product prod = this.mainConverter.converter(product, Product.class);
-//                        Rating rating = this.mainConverter.converter(product.getRating(), Rating.class);
-//                        prod.setRatingId(rating);
-//                        return this.productRepository.save(this.mainConverter.converter(product, Product.class));
-//                    });
-        //}
+        //se nao houver products quer dizer que o vetor nao iniciou e é nulo
+        if (products != null) {
+            for (ApiProduct product : products) {
+                //converter objetos todos:
+                //passar products e ratings para os objetos que fizemos pra mapear
+                Product productEntity = this.mainConverter.converter(product, Product.class);
+                //porque tambem é um objeto que vem do produto (tb é tabela na DB)
+                Rating ratingEntity = this.mainConverter.converter(product.getRating(), Rating.class);
 
-        for (ApiProduct product : products) {
-            Product productEntity = this.mainConverter.converter(product, Product.class);
-            Rating rating = this.mainConverter.converter(product.getRating(), Rating.class);
+                //para converter categoria (do json) de string para objeto:
+                //scope
+                Category category;
 
-            Category category;
+                //findbycategory query do categoryjpa
+                //se n houver categorias no repositorio construimos categoria, se nao vamos buscar a que existe
+                if (this.categoryRepository.findByCategory(product.getCategory()).isEmpty()) {
+                    category = Category.builder()
+                            .category(product.getCategory())
+                            .build();
 
-            if (this.categoryRepository.findByCategory(product.getCategory()).isEmpty()) {
-                category = Category.builder()
-                        .category(product.getCategory())
-                        .build();
+                    this.categoryRepository.save(category);
 
-                this.categoryRepository.saveAndFlush(category);
+                } else
+                    category = this.categoryRepository.findByCategory(product.getCategory()).get(); //get para ir buscar valor do optional (como fizemos o if)
 
-            } else
-                category = this.categoryRepository.findByCategory(product.getCategory()).get(); //get para ir buscar valor do optional (como fizemos o if)
-
-            //temos que guardar antes o arting na DB para podermos associar ao prod
-            this.ratingRepository.saveAndFlush(rating);
-            //associar o rating ao product
-            productEntity.setRatingId(rating);
-            productEntity.setCategory(category);
-            this.productRepository.saveAndFlush(productEntity);
+                //temos que guardar antes o rating na DB para podermos associar ao productEntity
+                this.ratingRepository.save(ratingEntity);
+                //associar o rating ao product
+                productEntity.setRatingId(ratingEntity);
+                productEntity.setCategory(category);
+                this.productRepository.save(productEntity);
+            }
         }
-//
-//        System.out.println(Arrays.toString(products));
-//    }
     }
 }
-//https://fakestoreapi.com/

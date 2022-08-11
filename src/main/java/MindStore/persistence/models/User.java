@@ -1,11 +1,14 @@
 package MindStore.persistence.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ManyToAny;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,6 +25,11 @@ public class User extends Person{
     @Column(nullable = false)
     private String adress;
 
-    @OneToMany(mappedBy = "userId")
-    private List<Product> shoppingCart;
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "user_product_table",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private Set<Product> shoppingCart;
 }

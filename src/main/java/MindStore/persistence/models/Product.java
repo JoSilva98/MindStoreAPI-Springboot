@@ -4,6 +4,7 @@ import MindStore.dataloader.ProductsFetch.ApiRating;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Set;
 
 //props iguais as da external api para podermos mapear
 
@@ -38,9 +39,8 @@ public class Product {
     @Column(nullable = false)
     private String image;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id_fk")
-    private User userId;
+    @ManyToMany(mappedBy = "shoppingCart")
+    private Set<User> users;
 
     //@OnDelete() se o detach n funcionar
     @OneToOne(cascade = CascadeType.DETACH) //DETACH????
