@@ -18,7 +18,7 @@ public class UserController {
 
     private UserServiceI userServiceI;
     @GetMapping("/products")
-    public Set<ProductDto> test() {
-        return null;
+    public Set<ProductDto> getAllProducts() {
+        return this.userServiceI.getAllProducts();
     }
 }
