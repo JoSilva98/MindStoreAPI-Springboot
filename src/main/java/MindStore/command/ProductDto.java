@@ -36,7 +36,7 @@ public class ProductDto {
     @NotNull //not null para numeros
     @Min(0)
     @Max(20)
-    private int category;
+    private String category;
 
     @NotEmpty
     @Size(min = 2, max = 60, message = "Image should have at least 2 characters and 60 max")
