@@ -35,6 +35,12 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!--		dto validations -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
 <!--		annotations-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
