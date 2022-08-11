@@ -1,6 +1,7 @@
 package MindStore.controllers;
 
 import MindStore.command.ProductDto;
+import MindStore.command.UserDto;
 import MindStore.services.AdminServiceI;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,6 @@ public class AdminController {
                                            @RequestParam(value = "pagesize") int pageSize) {
         return this.adminService.getAllProducts(direction, field, page, pageSize);
     }
-    //Paginar!
 
     @GetMapping("products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long id) {
@@ -32,5 +32,21 @@ public class AdminController {
         return this.adminService.getProductsByName(title);
     }
 
+    @GetMapping("users")
+    public List<UserDto> getAllUsers(@RequestParam(value = "direction") String direction,
+                                     @RequestParam(value = "field") String field,
+                                     @RequestParam(value = "page") int page,
+                                     @RequestParam(value = "pagesize") int pageSize) {
+        return this.adminService.getAllUsers(direction, field, page, pageSize);
+    }
 
+    @GetMapping("users/{id}")
+    public UserDto getUserById(@PathVariable("id") Long id) {
+        return this.adminService.getUserById(id);
+    }
+
+    @GetMapping("users/name/{name}")
+    public List<UserDto> getUsersByName(@PathVariable("name") String name) {
+        return this.adminService.getUsersByName(name);
+    }
 }

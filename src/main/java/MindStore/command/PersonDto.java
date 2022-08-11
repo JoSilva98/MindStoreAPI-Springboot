@@ -20,8 +20,12 @@ public class PersonDto {
     private Long id;
 
     @NotEmpty
-    @Size(min = 2, max = 30, message = "Name should have at least 2 characters")
-    private String name;
+    @Size(min = 2, max = 30, message = "First name should have at least 2 characters")
+    private String firstName;
+
+    @NotEmpty
+    @Size(min = 2, max = 30, message = "Last name should have at least 2 characters")
+    private String lastName;
 
     @NotEmpty
     @Email
