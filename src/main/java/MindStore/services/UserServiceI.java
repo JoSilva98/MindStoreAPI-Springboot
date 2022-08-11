@@ -1,10 +1,12 @@
 package MindStore.services;
 
 import MindStore.command.ProductDto;
-import org.springframework.stereotype.Repository;
-import java.util.Set;
+import java.util.List;
 
-@Repository
+
+
 public interface UserServiceI {
-    Set<ProductDto> getAllProducts();
+    List<ProductDto> getAllProducts();
+
+    List<ProductDto> getProductsByTitle(String title);
 }
