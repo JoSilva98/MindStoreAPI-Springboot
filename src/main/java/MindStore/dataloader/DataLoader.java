@@ -46,7 +46,7 @@ public class DataLoader implements ApplicationRunner {
                 .email("quim@mail")
                 .password("pass")
                 .dateOfBirth(LocalDate.of(1973, 2, 23))
-                .adress("Rua do Quim, 3800-237")
+                .address("Rua do Quim, 3800-237")
                 .roleId(userRole)
                 .build();
 
