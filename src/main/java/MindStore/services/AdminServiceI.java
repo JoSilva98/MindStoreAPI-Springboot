@@ -5,7 +5,7 @@ import MindStore.command.ProductDto;
 import java.util.List;
 
 public interface AdminServiceI {
-    List<ProductDto> getProducts();
+    List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize);
 
     ProductDto getProductById(Long id);
 
