@@ -75,8 +75,17 @@ public class UserController {
 
     //update rating?
 
-
     //filter price
-    //filter rating
-    //filter alphabetic
+    @GetMapping("/price")
+    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction){
+        return this.userServiceI.filterByPrice(direction);
+    }
+
+    //rating e alfabetic orders (fields)
+    @GetMapping
+    public List<ProductDto> filterByRatingAndAlphabetic(@RequestParam(value = "field") String field,
+                                                        @RequestParam(value = "direction") String direction){
+        return this.userServiceI.filterByRatingAndAlphabetic(field, direction);
+    }
+
 }
