@@ -58,17 +58,16 @@ public class UserController {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
 
-    //give rating
-    /*
-    user id para dar rating
-    product id para receber rating
-    body para dar rating
-     */
-
-    @PostMapping("/ratings/{userid}/{productid}")
-    public RatingDto
+    @PostMapping("/rating")
+    public RatingDto giveRating(@RequestParam(value = "userid") Long userId,
+                                @RequestParam(value = "productid") Long productId,
+                                @RequestParam(value = "rating") double rating){
+        return this.userServiceI.giveRating(userId, productId, rating);
+    }
 
     //update rating?
+
+
     //filter price
     //filter rating
     //filter alphabetic

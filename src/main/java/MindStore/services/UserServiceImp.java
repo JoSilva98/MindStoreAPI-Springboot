@@ -1,9 +1,6 @@
 package MindStore.services;
 
-import MindStore.command.CategoryDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
-import MindStore.command.UserUpdateDto;
+import MindStore.command.*;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.RoleEnum;
 import MindStore.exceptions.ConflictException;
@@ -19,6 +16,7 @@ import MindStore.persistence.repositories.Product.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +31,7 @@ public class UserServiceImp implements UserServiceI {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private MainConverterI mainConverter;
+    private DecimalFormat decimalFormat;
 
 
     @Override
@@ -122,5 +121,34 @@ public class UserServiceImp implements UserServiceI {
         return this.mainConverter.converter(updatedUser, UserDto.class);
     }
 
+    @Override
+    public RatingDto giveRating(Long userId, Long productId, double rating) {
+        if(rating<0 || rating>5){
+            throw new ConflictException("Rating value should be between 0 and 5");
+        }
 
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        Product product = this.productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        /*
+        ver o count da rating associada ao produto
+        adicionar a nossa e fazer nova media e fazer set count + 1 e set rating nova
+         */
+
+        double oldRating = product.getRatingId().getRate();
+        int ratingCount = product.getRatingId().getCount(); //120
+
+        double newRating = oldRating + ((rating-oldRating)/(ratingCount + 1));
+        //para por a rating so com 1 casa decimal, o parse double pq decimal format devolve string
+        double newRatingFormatted = Double.parseDouble(decimalFormat.format(newRating));
+
+        product.getRatingId().setRate(newRatingFormatted);
+        product.getRatingId().setCount(ratingCount + 1);
+        this.productRepository.save(product);
+
+        //product.getRatingId() vai buscar o objeto rating
+        return this.mainConverter.converter(product.getRatingId(), RatingDto.class);
+    }
 }

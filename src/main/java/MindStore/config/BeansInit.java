@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.DecimalFormat;
+
 
 @Configuration
 public class BeansInit {
@@ -20,5 +22,11 @@ public class BeansInit {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    //para os ratings
+    @Bean
+    public DecimalFormat decimalFormat(){
+        return new DecimalFormat("0.0");
     }
 }

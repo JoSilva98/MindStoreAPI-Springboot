@@ -1,9 +1,6 @@
 package MindStore.services;
 
-import MindStore.command.CategoryDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
-import MindStore.command.UserUpdateDto;
+import MindStore.command.*;
 
 import java.util.List;
 
@@ -25,4 +22,6 @@ public interface UserServiceI {
     UserDto signUp(UserDto userDto);
 
     UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
+
+    RatingDto giveRating(Long userId, Long productId, double rating);
 }
