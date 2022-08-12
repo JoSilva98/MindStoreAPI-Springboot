@@ -1,14 +1,13 @@
 package MindStore.services;
 
-import MindStore.command.CategoryDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
-import MindStore.command.UserUpdateDto;
+import MindStore.command.*;
 import MindStore.converters.MainConverterI;
+import MindStore.enums.DirectionEnum;
 import MindStore.enums.RoleEnum;
 import MindStore.exceptions.ConflictException;
 import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Person.User;
+import MindStore.persistence.models.Product.Rating;
 import MindStore.persistence.repositories.Person.RoleRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.exceptions.NotFoundException;
@@ -16,11 +15,15 @@ import MindStore.persistence.models.Product.Category;
 import MindStore.persistence.models.Product.Product;
 import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
+import MindStore.persistence.repositories.Product.RatingRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +37,9 @@ public class UserServiceImp implements UserServiceI {
     private CategoryRepository categoryRepository;
     private UserRepository userRepository;
     private RoleRepository roleRepository;
+    private RatingRepository ratingRepository;
     private MainConverterI mainConverter;
+    private DecimalFormat decimalFormat;
 
 
     @Override
@@ -141,5 +146,131 @@ public class UserServiceImp implements UserServiceI {
         return this.mainConverter.converter(updatedUser, UserDto.class);
     }
 
+    @Override
+    public RatingDto giveRating(Long userId, Long productId, double rating) {
+        if (rating < 0 || rating > 5) {
+            throw new ConflictException("Rating value should be between 0 and 5");
+        }
 
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        Product product = this.productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        /*
+        ver o count da rating associada ao produto
+        adicionar a nossa e fazer nova media e fazer set count + 1 e set rating nova
+         */
+
+        double oldRating = product.getRatingId().getRate();
+        int ratingCount = product.getRatingId().getCount(); //120
+
+        double newRating = oldRating + ((rating - oldRating) / (ratingCount + 1));
+        //para por a rating so com 1 casa decimal, o parse double pq decimal format devolve string
+        double newRatingFormatted = Double.parseDouble(decimalFormat.format(newRating));
+
+        product.getRatingId().setRate(newRatingFormatted);
+        product.getRatingId().setCount(ratingCount + 1);
+        this.productRepository.save(product);
+
+        //product.getRatingId() vai buscar o objeto rating
+        return this.mainConverter.converter(product.getRatingId(), RatingDto.class);
+    }
+
+    @Override
+    public List<ProductDto> filterByPrice(String direction) {
+
+        return switch (direction) {
+            case DirectionEnum.ASC -> ascendingDirectionPrice(direction);
+            case DirectionEnum.DESC -> descendingDirectionPrice(direction);
+            default -> throw new NotFoundException("Input is not a direction");
+        };
+    }
+
+    @Override
+    public List<ProductDto> filterByRatingAndAlphabetic(String field, String direction) {
+        List<ProductDto> productList = new ArrayList<>();
+
+        switch (field) {
+            case "rating" -> {
+                if (direction.equals(DirectionEnum.ASC)) {
+                    productList = ascendingRating(direction);
+                } else if (direction.equals(DirectionEnum.DESC)) {
+                    productList = descendingRating(direction);
+                }
+            } case "title" -> {
+                if(direction.equals(DirectionEnum.ASC)) {
+                    productList = ascendingTitle(direction);
+                } else if (direction.equals(DirectionEnum.DESC)){
+                    productList = descendingTitle(direction);
+                }
+            }
+            default -> throw new NotFoundException("Field not found");
+        }
+        return productList;
+    }
+
+    //rating and alphabetic:
+
+    private List<ProductDto> ascendingRating(String direction) {
+        //tabela rating e ordenar e buscar products associadoas
+        List<Rating> ratings = this.ratingRepository.findAll(
+                Sort.by(Sort.Direction.ASC, "rate")
+        );
+
+        List<Product> productList = ratings.stream()
+                .map((rating) -> rating.getProductId())
+                .toList();
+
+        return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
+
+    private List<ProductDto> descendingRating(String direction) {
+
+        List<Rating> ratings = this.ratingRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "rate")
+        );
+
+        List<Product> productList = ratings.stream()
+                .map((rating) -> rating.getProductId())
+                .toList();
+
+        return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
+
+    private List<ProductDto> ascendingTitle(String direction) {
+        List<Product> productList = this.productRepository.findAll(
+                Sort.by(Sort.Direction.ASC, "title")
+        );
+
+        return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
+
+    private List<ProductDto> descendingTitle(String direction) {
+        List<Product> productList = this.productRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "title")
+        );
+
+        return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
+
+    //price
+    private List<ProductDto> ascendingDirectionPrice(String direction) {
+        /*
+        vai a tabela products e vai fazer por ordem descendetente com base na coluna preço
+         */
+        List<Product> productList = this.productRepository.findAll(
+                Sort.by(Sort.Direction.ASC, "price")
+        );
+
+        return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
+
+    private List<ProductDto> descendingDirectionPrice(String direction) {
+        List<Product> productList = this.productRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "price")
+        );
+
+        return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
 }

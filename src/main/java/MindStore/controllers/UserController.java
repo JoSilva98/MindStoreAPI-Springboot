@@ -1,9 +1,6 @@
 package MindStore.controllers;
 
-import MindStore.command.CategoryDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
-import MindStore.command.UserUpdateDto;
+import MindStore.command.*;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -69,18 +66,26 @@ public class UserController {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
 
-    //give rating
-    /*
-    user id para dar rating
-    product id para receber rating
-    body para dar rating
-     */
-
-//    @PostMapping("/ratings/{userid}/{productid}")
-//    public Rat
+    @PostMapping("/rating")
+    public RatingDto giveRating(@RequestParam(value = "userid") Long userId,
+                                @RequestParam(value = "productid") Long productId,
+                                @RequestParam(value = "rating") double rating){
+        return this.userServiceI.giveRating(userId, productId, rating);
+    }
 
     //update rating?
+
     //filter price
-    //filter rating
-    //filter alphabetic
+    @GetMapping("/price")
+    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction){
+        return this.userServiceI.filterByPrice(direction);
+    }
+
+    //rating e alfabetic orders (fields)
+    @GetMapping
+    public List<ProductDto> filterByRatingAndAlphabetic(@RequestParam(value = "field") String field,
+                                                        @RequestParam(value = "direction") String direction){
+        return this.userServiceI.filterByRatingAndAlphabetic(field, direction);
+    }
+
 }

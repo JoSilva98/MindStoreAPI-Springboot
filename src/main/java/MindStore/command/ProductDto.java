@@ -41,7 +41,10 @@ public class ProductDto {
     @Max(20)
     private int stock;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY) //automaticamente o admin vai adicionar no service com
-    //rating de 0 estrelas e 0 count
-    private int ratingId;
+//    @JsonProperty(access = JsonProperty.Access.READ_ONLY) //automaticamente o admin vai adicionar no service com
+//    //rating de 0 estrelas e 0 count
+//    private int ratingId;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private RatingDto rating;
 }
