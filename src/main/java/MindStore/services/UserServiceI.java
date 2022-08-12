@@ -16,4 +16,6 @@ public interface UserServiceI {
     ProductDto getProductById(Long id);
 
     CategoryDto getCategoryById(int id);
+
+    List<ProductDto> getShoppingCart(Long userId);
 }

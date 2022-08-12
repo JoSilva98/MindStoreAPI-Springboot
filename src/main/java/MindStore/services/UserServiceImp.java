@@ -8,6 +8,7 @@ import MindStore.persistence.models.Category;
 import MindStore.persistence.models.Product;
 import MindStore.persistence.repositories.CategoryRepository;
 import MindStore.persistence.repositories.ProductRepository;
+import MindStore.persistence.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,9 @@ public class UserServiceImp implements UserServiceI {
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    private UserRepository userRepository;
     private MainConverterI mainConverter;
+
 
     @Override
     public List<ProductDto> getAllProducts() {
@@ -66,5 +69,10 @@ public class UserServiceImp implements UserServiceI {
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
         return this.mainConverter.converter(category, CategoryDto.class);
+    }
+
+    @Override
+    public List<ProductDto> getShoppingCart(Long userId) {
+        return null;
     }
 }
