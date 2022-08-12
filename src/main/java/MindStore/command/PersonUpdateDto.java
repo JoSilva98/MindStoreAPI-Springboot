@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
@@ -17,7 +18,10 @@ import javax.validation.constraints.Size;
 public class PersonUpdateDto {
 
     @Size(min = 2, max = 30, message = "Name should have at least 2 characters")
-    private String name;
+    private String firstName;
+
+    @Size(min = 2, max = 30, message = "Name should have at least 2 characters")
+    private String lastName;
 
     @Email
     @Size(min = 4, max = 30, message = "The email must be between 8 and 30 characters")

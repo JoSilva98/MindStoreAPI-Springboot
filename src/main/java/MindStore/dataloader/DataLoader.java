@@ -36,6 +36,8 @@ public class DataLoader implements ApplicationRunner {
     private final RoleRepository roleRepository;
     private final AdminRepository adminRepository;
 
+    //Mudar jewelery para jewellery
+
     @Override
     public void run(ApplicationArguments args) {
         externalApi();
