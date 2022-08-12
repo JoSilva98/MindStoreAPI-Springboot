@@ -8,6 +8,6 @@ public class ValidateParams {
             throw new NotAllowedValueException("Only pages above 0");
 
         if (pageSize < 1 || pageSize > 100)
-            throw new NotAllowedValueException("Only between 1 and 100 people per page");
+            throw new NotAllowedValueException("Only between 1 and 100 products per page");
     }
 }

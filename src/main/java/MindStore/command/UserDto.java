@@ -21,7 +21,7 @@ import java.time.LocalDate;
 public class UserDto extends PersonDto {
 
     @NotEmpty
-    @Size(min = 5, max = 40, message = "Adress should have at least 5 characters")
+    @Size(min = 5, max = 40, message = "Address should have at least 5 characters")
     private String address;
 
     @NotNull //qd datetimeformat em vez de notempty

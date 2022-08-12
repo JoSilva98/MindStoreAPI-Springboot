@@ -20,9 +20,14 @@ public class UserController {
     private UserServiceI userServiceI;
 
     //posso apresentar list porque set ja esta na entidade para ser filtrado
+    //request param para a lista sair paginada
+    //direction asc ou desc, field é o tipo que queremos (title, price.), qual a pagina, pagesize qtos products per page
     @GetMapping("/products")
-    public List<ProductDto> getAllProducts() {
-        return this.userServiceI.getAllProducts();
+    public List<ProductDto> getAllProducts(@RequestParam(value = "direction") String direction,
+                                           @RequestParam(value = "field") String field,
+                                           @RequestParam(value = "page") int page,
+                                           @RequestParam(value = "pagesize") int pageSize) {
+        return this.userServiceI.getAllProducts(direction, field, page, pageSize);
     }
 
     @GetMapping("/products/byname/{title}")
