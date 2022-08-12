@@ -11,6 +11,6 @@ public class ProductFieldsEnum {
     public static final String STOCK = "stock";
     public static final String CATEGORY = "category";
     public static final String RATING = "rating";
-    public static final List<String> FIELDS = List.of(ID, TITLE, DESCRIPTION, IMAGE, PRICE, STOCK, CATEGORY, RATING);
+    public static final List<String> FIELDS = List.of(TITLE, RATING);
 
 }

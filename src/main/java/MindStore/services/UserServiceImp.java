@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -112,7 +113,7 @@ public class UserServiceImp implements UserServiceI {
         User user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Set<Product> productList = user.getShoppingCart();
+        List<Product> productList = user.getShoppingCart();
 
         return productList.stream()
                 .map(product -> mainConverter.converter(product, ProductDto.class))
@@ -140,8 +141,18 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public ResponseEntity<String> buyProducts(Long id, int payment) {
+
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+
+        //no caso de 2 users terem no shoping cart ao mesmo tempo e 1 comprar primeiro temos de lançar exceçao
+        //para o outro
+        user.getShoppingCart()
+                .forEach(product ->{
+                    if(product.getStock() == 0){
+                        throw new NotFoundException("At least one product out of stock, review your shoppimg cart");
+                    }
+                });
 
         double totalPrice = user.getShoppingCart()
                 .stream()
@@ -152,6 +163,11 @@ public class UserServiceImp implements UserServiceI {
 
         if (payment < totalPrice)
             return new ResponseEntity<>("You don't have enough money", HttpStatus.EXPECTATION_FAILED);
+
+        user.getShoppingCart().forEach(Product::decreaseStock);
+        user.setShoppingCart(new ArrayList<>());
+        this.userRepository.save(user);
+
         return new ResponseEntity<>("Payment accepted!", HttpStatus.OK);
     }
 
@@ -219,16 +235,49 @@ public class UserServiceImp implements UserServiceI {
                 } else if (direction.equals(DirectionEnum.DESC)) {
                     productList = descendingRating(direction);
                 }
-            } case ProductFieldsEnum.TITLE -> {
-                if(direction.equalsIgnoreCase(DirectionEnum.ASC)) {
+            }
+            case ProductFieldsEnum.TITLE -> {
+                if (direction.equalsIgnoreCase(DirectionEnum.ASC)) {
                     productList = ascendingTitle(direction);
-                } else if (direction.equals(DirectionEnum.DESC)){
+                } else if (direction.equals(DirectionEnum.DESC)) {
                     productList = descendingTitle(direction);
                 }
             }
             default -> throw new NotFoundException("Field not found");
         }
         return productList;
+    }
+
+    @Override
+    public List<ProductDto> addProductToCart(Long userId, Long productId) {
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Product product = this.productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        if(product.getStock() == 0){
+            throw new NotFoundException("No stock on this product");
+        }
+
+        user.addProductToCart(product);
+        this.userRepository.save(user);
+
+        return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
+    }
+
+    @Override
+    public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Product product = this.productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        user.removeProductFromCart(product);
+        this.userRepository.save(user);
+
+        return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
     }
 
     //rating and alphabetic:
