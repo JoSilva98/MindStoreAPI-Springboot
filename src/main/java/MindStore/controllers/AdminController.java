@@ -1,8 +1,6 @@
 package MindStore.controllers;
 
-import MindStore.command.AdminDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
+import MindStore.command.*;
 import MindStore.services.AdminServiceI;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +63,21 @@ public class AdminController {
     @PostMapping("users")
     public UserDto addUser(@Valid @RequestBody UserDto userDto) {
         return this.adminService.addUser(userDto);
+    }
+
+    @PatchMapping("{id}")
+    public AdminDto updateAdmin(@PathVariable("id") Long id, @Valid @RequestBody AdminUpdateDto adminUpdateDto) {
+        return this.adminService.updateAdmin(id, adminUpdateDto);
+    }
+
+    @PatchMapping("products/{id}")
+    public ProductDto updateProduct(@PathVariable("id") Long id, @Valid @RequestBody ProductUpdateDto productUpdateDto) {
+        return this.adminService.updateProduct(id, productUpdateDto);
+    }
+
+    @PatchMapping("users/{id}")
+    public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        return this.adminService.updateUser(id, userUpdateDto);
     }
 
 

@@ -1,8 +1,6 @@
 package MindStore.services;
 
-import MindStore.command.AdminDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
+import MindStore.command.*;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
 import MindStore.enums.RoleEnum;
@@ -16,6 +14,7 @@ import MindStore.persistence.models.Product.Product;
 import MindStore.persistence.models.Product.Rating;
 import MindStore.persistence.models.Person.User;
 import MindStore.persistence.repositories.Person.AdminRepository;
+import MindStore.persistence.repositories.Person.PersonRepository;
 import MindStore.persistence.repositories.Person.RoleRepository;
 import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
@@ -33,9 +32,10 @@ import static MindStore.helpers.ValidateParams.validatePages;
 @Service
 @AllArgsConstructor
 public class AdminService implements AdminServiceI {
+    private PersonRepository personRepository;
     private AdminRepository adminRepository;
-    private ProductRepository productRepository;
     private UserRepository userRepository;
+    private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private RatingRepository ratingRepository;
     private RoleRepository roleRepository;
@@ -169,6 +169,57 @@ public class AdminService implements AdminServiceI {
 
         User user = this.converter.converter(userDto, User.class);
         user.setRoleId(role);
+
+        return this.converter.converter(
+                this.userRepository.save(user), UserDto.class
+        );
+    }
+
+    @Override
+    public AdminDto updateAdmin(Long id, AdminUpdateDto adminUpdateDto) {
+        Admin admin = this.adminRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Admin not found"));
+
+        this.personRepository.findByEmail(adminUpdateDto.getEmail())
+                .ifPresent(x -> {
+                    throw new ConflictException("Email is already being used");
+                });
+
+        admin = this.converter.updateConverter(adminUpdateDto, admin);
+
+        return this.converter.converter(
+                this.adminRepository.save(admin), AdminDto.class
+        );
+    }
+
+    @Override
+    public ProductDto updateProduct(Long id, ProductUpdateDto productUpdateDto) {
+        Product product = this.productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        this.productRepository.findByTitle(productUpdateDto.getTitle())
+                .ifPresent(x -> {
+                    throw new ConflictException("Title already exists");
+                });
+
+        product = this.converter.updateConverter(productUpdateDto, product);
+
+        return this.converter.converter(
+                this.productRepository.save(product), ProductDto.class
+        );
+    }
+
+    @Override
+    public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+        User user = this.userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        this.personRepository.findByEmail(userUpdateDto.getEmail())
+                .ifPresent(x -> {
+                    throw new ConflictException("Email is already being used");
+                });
+
+        user = this.converter.updateConverter(userUpdateDto, user);
 
         return this.converter.converter(
                 this.userRepository.save(user), UserDto.class

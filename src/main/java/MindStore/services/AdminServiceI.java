@@ -1,8 +1,6 @@
 package MindStore.services;
 
-import MindStore.command.AdminDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
+import MindStore.command.*;
 
 import java.util.List;
 
@@ -24,6 +22,12 @@ public interface AdminServiceI {
     ProductDto addProduct(ProductDto productDto);
 
     UserDto addUser(UserDto userDto);
+
+    AdminDto updateAdmin(Long id, AdminUpdateDto adminUpdateDto);
+
+    ProductDto updateProduct(Long id, ProductUpdateDto productUpdateDto);
+
+    UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
 
     void deleteProduct(String title);
 }
