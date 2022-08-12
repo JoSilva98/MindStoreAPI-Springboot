@@ -1,20 +1,16 @@
 package MindStore.enums;
 
-import lombok.Getter;
+import java.util.List;
 
-@Getter
-public enum ProductFieldsEnum {
-    ID("ID"),
-    TITLE("TITLE"),
-    DESCRIPTION("DESCRIPTION"),
-    IMAGE("IMAGE"),
-    PRICE("PRICE"),
-    STOCK("STOCK"),
-    CATEGORY("CATEGORY");
+public class ProductFieldsEnum {
+    public static final String ID = "id";
+    public static final String TITLE = "title";
+    public static final String DESCRIPTION = "description";
+    public static final String IMAGE = "image";
+    public static final String PRICE = "price";
+    public static final String STOCK = "stock";
+    public static final String CATEGORY = "category";
+    public static final String RATING = "rating";
+    public static final List<String> FIELDS = List.of(ID, TITLE, DESCRIPTION, IMAGE, PRICE, STOCK, CATEGORY, RATING);
 
-    private final String FIELD;
-
-    ProductFieldsEnum(String field) {
-        this.FIELD = field;
-    }
 }

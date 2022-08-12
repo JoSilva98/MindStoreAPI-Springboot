@@ -49,8 +49,8 @@ public class AdminService implements AdminServiceI {
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
         validatePages(page, pageSize);
 
-        Arrays.stream(ProductFieldsEnum.values())
-                .filter(elm -> elm.getFIELD().equals(field))
+        ProductFieldsEnum.FIELDS.stream()
+                .filter(elm -> elm.equalsIgnoreCase(field))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Field not found"));
 
