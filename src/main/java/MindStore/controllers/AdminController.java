@@ -67,9 +67,6 @@ public class AdminController {
         return this.adminService.addUser(userDto);
     }
 
-    @PatchMapping("{id}")
-    public AdminDto update
-
 
     @DeleteMapping("products/{title}")
     public void deleteProduct(@PathVariable("title") String title) {

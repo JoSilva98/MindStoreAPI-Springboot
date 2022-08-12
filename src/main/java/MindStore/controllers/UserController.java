@@ -2,13 +2,12 @@ package MindStore.controllers;
 
 import MindStore.command.CategoryDto;
 import MindStore.command.ProductDto;
+import MindStore.command.UserDto;
+import MindStore.command.UserUpdateDto;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -37,10 +36,6 @@ public class UserController {
         return this.userServiceI.getProductByCategory(category);
     }
 
-    //get product by id
-    //get category by id
-    //sign up user
-
     @GetMapping("/products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long id){
         return this.userServiceI.getProductById(id);
@@ -55,4 +50,20 @@ public class UserController {
     public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId){
         return this.userServiceI.getShoppingCart(userId);
     }
+
+    @PostMapping
+    public UserDto signUp(@Valid @RequestBody UserDto userDto){
+        return this.userServiceI.signUp(userDto);
+    }
+
+    @PatchMapping("/{id}")
+    public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto){
+        return this.userServiceI.updateUser(id, userUpdateDto);
+    }
+
+
+    //filter price
+    //filter rating
+    //filter alphabetic
+    //give rating
 }

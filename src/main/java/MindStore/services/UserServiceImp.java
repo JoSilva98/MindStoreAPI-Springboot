@@ -2,18 +2,25 @@ package MindStore.services;
 
 import MindStore.command.CategoryDto;
 import MindStore.command.ProductDto;
+import MindStore.command.UserDto;
+import MindStore.command.UserUpdateDto;
 import MindStore.converters.MainConverterI;
+import MindStore.enums.RoleEnum;
+import MindStore.exceptions.ConflictException;
+import MindStore.persistence.models.Person.Role;
+import MindStore.persistence.models.Person.User;
+import MindStore.persistence.repositories.Person.RoleRepository;
+import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.exceptions.NotFoundException;
-import MindStore.persistence.models.Category;
-import MindStore.persistence.models.Product;
-import MindStore.persistence.models.User;
-import MindStore.persistence.repositories.CategoryRepository;
-import MindStore.persistence.repositories.ProductRepository;
-import MindStore.persistence.repositories.UserRepository;
+import MindStore.persistence.models.Product.Category;
+import MindStore.persistence.models.Product.Product;
+import MindStore.persistence.repositories.Product.CategoryRepository;
+import MindStore.persistence.repositories.Product.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -24,6 +31,7 @@ public class UserServiceImp implements UserServiceI {
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private UserRepository userRepository;
+    private RoleRepository roleRepository;
     private MainConverterI mainConverter;
 
 
@@ -35,7 +43,7 @@ public class UserServiceImp implements UserServiceI {
     @Override
     public List<ProductDto> getProductsByTitle(String title) {
 
-        List<Product> productsList = this.productRepository.findByTitle(title);
+        List<Product> productsList = this.productRepository.findByTitleLike(title);
         if (productsList.isEmpty()) {
             throw new NotFoundException("No products found with such name");
         }
@@ -77,7 +85,40 @@ public class UserServiceImp implements UserServiceI {
         User user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        List<Product> productList = user.getShoppingCart();
-        return null;
+        Set<Product> productList = user.getShoppingCart();
+
+        return productList.stream()
+                .map(product -> mainConverter.converter(product, ProductDto.class))
+                .toList();
+    }
+
+    @Override
+    public UserDto signUp(UserDto userDto) {
+        this.userRepository.findByEmail(userDto.getEmail())
+                .ifPresent((student) -> {
+                    throw new ConflictException("User already exists");
+                });
+
+        User userToSave = this.mainConverter.converter(userDto, User.class);
+
+        //dar set do role, primeiro temos que o encontrar no rep
+        Role role = this.roleRepository.findById(RoleEnum.USER)
+                        .orElseThrow(() -> new NotFoundException("Role not found"));
+
+        userToSave.setRoleId(role);
+        this.userRepository.save(userToSave);
+
+        return this.mainConverter.converter(userToSave, UserDto.class);
+    }
+
+    @Override
+    public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+        User user = this.userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        User updatedUser = this.mainConverter.updateConverter(userUpdateDto, user);
+        this.userRepository.save(updatedUser);
+
+        return this.mainConverter.converter(updatedUser, UserDto.class);
     }
 }
