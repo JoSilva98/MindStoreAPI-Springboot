@@ -30,5 +30,5 @@ public interface UserServiceI {
 
     List<ProductDto> filterByRatingAndAlphabetic(String field, String direction);
 
-    ResponseEntity<String> buyProducts(Long id, int payement);
+    ResponseEntity<String> buyProducts(Long id, int payment);
 }

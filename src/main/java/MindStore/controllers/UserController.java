@@ -55,16 +55,17 @@ public class UserController {
         return this.userServiceI.signUp(userDto);
     }
 
-    @PostMapping("buy/{id}")
-    public ResponseEntity<String> buyProducts(@PathVariable("id") Long id,
-                                              @Valid @RequestBody int payement) {
-        return this.userServiceI.buyProducts(id, payement);
-    }
-
     @PatchMapping("/{id}")
     public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
+
+    @PostMapping("buy/{id}")
+    public ResponseEntity<String> buyProducts(@PathVariable("id") Long id,
+                                              @Valid @RequestBody int payment) {
+        return this.userServiceI.buyProducts(id, payment);
+    }
+
 
     @PostMapping("/rating")
     public RatingDto giveRating(@RequestParam(value = "userid") Long userId,
