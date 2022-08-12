@@ -6,6 +6,7 @@ import MindStore.converters.MainConverterI;
 import MindStore.exceptions.NotFoundException;
 import MindStore.persistence.models.Category;
 import MindStore.persistence.models.Product;
+import MindStore.persistence.models.User;
 import MindStore.persistence.repositories.CategoryRepository;
 import MindStore.persistence.repositories.ProductRepository;
 import MindStore.persistence.repositories.UserRepository;
@@ -73,6 +74,10 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> getShoppingCart(Long userId) {
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        List<Product> productList = user.getShoppingCart();
         return null;
     }
 }
