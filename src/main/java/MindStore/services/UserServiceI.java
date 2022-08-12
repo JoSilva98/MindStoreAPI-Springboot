@@ -24,4 +24,8 @@ public interface UserServiceI {
     UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
 
     RatingDto giveRating(Long userId, Long productId, double rating);
+
+    List<ProductDto> filterByPrice(String direction);
+
+    List<ProductDto> filterByRatingAndAlphabetic(String field, String direction);
 }
