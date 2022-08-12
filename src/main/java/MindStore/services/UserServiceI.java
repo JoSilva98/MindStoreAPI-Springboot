@@ -1,6 +1,7 @@
 package MindStore.services;
 
 import MindStore.command.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -30,4 +31,6 @@ public interface UserServiceI {
     List<ProductDto> filterByPrice(String direction);
 
     List<ProductDto> filterByRatingAndAlphabetic(String field, String direction);
+
+    ResponseEntity<String> buyProducts(Long id, int payement);
 }
