@@ -1,12 +1,6 @@
 package MindStore.services;
 
-import MindStore.command.CategoryDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
-import MindStore.command.UserUpdateDto;
-import org.apache.logging.log4j.message.StringFormattedMessage;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import MindStore.command.*;
 
 import java.util.List;
 
@@ -30,4 +24,6 @@ public interface UserServiceI {
     ResponseEntity<String> buyProducts(Long id, int payement);
 
     UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
+
+    RatingDto giveRating(Long userId, Long productId, double rating);
 }
