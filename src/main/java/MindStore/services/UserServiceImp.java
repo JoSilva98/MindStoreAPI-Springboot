@@ -120,7 +120,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public ResponseEntity<String> buyProducts(Long id, int payement) {
+    public ResponseEntity<String> buyProducts(Long id, int payment) {
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -131,9 +131,9 @@ public class UserServiceImp implements UserServiceI {
 
         if (totalPrice == 0) throw new NotFoundException("Your shopping cart is empty");
 
-        if (payement < totalPrice)
+        if (payment < totalPrice)
             return new ResponseEntity<>("You don't have enough money", HttpStatus.EXPECTATION_FAILED);
-        return new ResponseEntity<>("Payement accepted!", HttpStatus.OK);
+        return new ResponseEntity<>("Payment accepted!", HttpStatus.OK);
     }
 
     @Override
