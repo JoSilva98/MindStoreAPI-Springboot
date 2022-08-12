@@ -42,7 +42,8 @@ public class DataLoader implements ApplicationRunner {
         this.roleRepository.saveAll(roles);
 
         User user = User.builder()
-                .name("Joaquim Alberto")
+                .firstName("Joaquim")
+                .lastName("Alberto")
                 .email("quim@mail")
                 .password("pass")
                 .dateOfBirth(LocalDate.of(1973, 2, 23))
@@ -53,7 +54,8 @@ public class DataLoader implements ApplicationRunner {
         this.userRepository.save(user);
 
         Admin admin = Admin.builder()
-                .name("Ze To")
+                .firstName("Ze")
+                .lastName("To")
                 .email("zeto@email.com")
                 .password("ora_esta_bem_entao")
                 .roleId(adminRole)

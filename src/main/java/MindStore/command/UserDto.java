@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @SuperBuilder
-public class UserDto extends PersonDto{
+public class UserDto extends PersonDto {
 
     @NotEmpty
     @Size(min = 5, max = 40, message = "Adress should have at least 5 characters")
