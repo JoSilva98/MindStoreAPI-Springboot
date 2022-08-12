@@ -4,10 +4,10 @@ import MindStore.command.CategoryDto;
 import MindStore.command.ProductDto;
 import MindStore.converters.MainConverterI;
 import MindStore.exceptions.NotFoundException;
-import MindStore.persistence.models.Category;
-import MindStore.persistence.models.Product;
-import MindStore.persistence.repositories.CategoryRepository;
-import MindStore.persistence.repositories.ProductRepository;
+import MindStore.persistence.models.Product.Category;
+import MindStore.persistence.models.Product.Product;
+import MindStore.persistence.repositories.Product.CategoryRepository;
+import MindStore.persistence.repositories.Product.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ public class UserServiceImp implements UserServiceI {
     @Override
     public List<ProductDto> getProductsByTitle(String title) {
 
-        List<Product> productsList = this.productRepository.findByTitle(title);
+        List<Product> productsList = this.productRepository.findByTitleLike(title);
         if (productsList.isEmpty()) {
             throw new NotFoundException("No products found with such name");
         }

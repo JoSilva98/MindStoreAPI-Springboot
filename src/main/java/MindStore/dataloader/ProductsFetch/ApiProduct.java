@@ -2,7 +2,6 @@ package MindStore.dataloader.ProductsFetch;
 
 //tem que ter props todas iguais a do product model para podermos guardar na DB
 
-import MindStore.persistence.models.Rating;
 import lombok.*;
 
 //@RequiredArgsConstructor //so inicia as variaveis final

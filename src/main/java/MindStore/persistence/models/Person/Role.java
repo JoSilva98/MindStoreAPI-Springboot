@@ -1,4 +1,4 @@
-package MindStore.persistence.models;
+package MindStore.persistence.models.Person;
 
 import lombok.*;
 
