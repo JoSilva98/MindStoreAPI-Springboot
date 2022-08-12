@@ -3,6 +3,7 @@ package MindStore.services;
 import MindStore.command.*;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
+import MindStore.enums.ProductFieldsEnum;
 import MindStore.enums.RoleEnum;
 import MindStore.exceptions.ConflictException;
 import MindStore.persistence.models.Person.Role;
@@ -192,14 +193,15 @@ public class UserServiceImp implements UserServiceI {
         List<ProductDto> productList = new ArrayList<>();
 
         switch (field) {
-            case "rating" -> {
-                if (direction.equals(DirectionEnum.ASC)) {
+            case ProductFieldsEnum.RATING -> {
+                //ignore case para poder por asc
+                if (direction.equalsIgnoreCase(DirectionEnum.ASC)) {
                     productList = ascendingRating(direction);
                 } else if (direction.equals(DirectionEnum.DESC)) {
                     productList = descendingRating(direction);
                 }
-            } case "title" -> {
-                if(direction.equals(DirectionEnum.ASC)) {
+            } case ProductFieldsEnum.TITLE -> {
+                if(direction.equalsIgnoreCase(DirectionEnum.ASC)) {
                     productList = ascendingTitle(direction);
                 } else if (direction.equals(DirectionEnum.DESC)){
                     productList = descendingTitle(direction);
