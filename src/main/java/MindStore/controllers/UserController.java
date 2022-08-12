@@ -50,4 +50,9 @@ public class UserController {
     public CategoryDto getCategoryById(@PathVariable("id") int id){
         return this.userServiceI.getCategoryById(id);
     }
+
+    @GetMapping("/shoppingcart/{userid}")
+    public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId){
+        return this.userServiceI.getShoppingCart(userId);
+    }
 }

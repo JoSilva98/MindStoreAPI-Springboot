@@ -3,6 +3,7 @@ package MindStore.services;
 import MindStore.command.CategoryDto;
 import MindStore.command.ProductDto;
 import MindStore.converters.MainConverterI;
+import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.exceptions.NotFoundException;
 import MindStore.persistence.models.Product.Category;
 import MindStore.persistence.models.Product.Product;
@@ -21,7 +22,9 @@ public class UserServiceImp implements UserServiceI {
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    private UserRepository userRepository;
     private MainConverterI mainConverter;
+
 
     @Override
     public List<ProductDto> getAllProducts() {
@@ -66,5 +69,10 @@ public class UserServiceImp implements UserServiceI {
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
         return this.mainConverter.converter(category, CategoryDto.class);
+    }
+
+    @Override
+    public List<ProductDto> getShoppingCart(Long userId) {
+        return null;
     }
 }
