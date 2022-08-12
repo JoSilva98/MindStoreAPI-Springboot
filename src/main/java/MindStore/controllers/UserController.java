@@ -1,9 +1,6 @@
 package MindStore.controllers;
 
-import MindStore.command.CategoryDto;
-import MindStore.command.ProductDto;
-import MindStore.command.UserDto;
-import MindStore.command.UserUpdateDto;
+import MindStore.command.*;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -68,8 +65,8 @@ public class UserController {
     body para dar rating
      */
 
-//    @PostMapping("/ratings/{userid}/{productid}")
-//    public Rat
+    @PostMapping("/ratings/{userid}/{productid}")
+    public RatingDto
 
     //update rating?
     //filter price
