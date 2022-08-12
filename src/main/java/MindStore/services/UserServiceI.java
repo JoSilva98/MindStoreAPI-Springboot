@@ -30,5 +30,8 @@ public interface UserServiceI {
 
     List<ProductDto> filterByRatingAndAlphabetic(String field, String direction);
 
+    List<ProductDto> addProductToCart(Long userId, Long productId);
+    List<ProductDto> removeProductFromCart(Long userId, Long productId);
+
     ResponseEntity<String> buyProducts(Long id, int payment);
 }
