@@ -1,6 +1,6 @@
-package MindStore.persistence.models;
+package MindStore.persistence.models.Product;
 
-import MindStore.dataloader.ProductsFetch.ApiRating;
+import MindStore.persistence.models.Person.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,7 +22,7 @@ public class Product {
     @Column(nullable = false, unique = true, updatable = false)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
 
     @Column(nullable = false)
@@ -46,7 +46,7 @@ public class Product {
     private Set<User> users;
 
     //@OnDelete() se o detach n funcionar
-    @OneToOne(cascade = CascadeType.DETACH) //DETACH????
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "rating_id_fk") //do lado que pusermos o join colum é a table od vai aparecer
     private Rating ratingId;
 }

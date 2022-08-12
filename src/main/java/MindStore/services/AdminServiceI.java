@@ -1,5 +1,6 @@
 package MindStore.services;
 
+import MindStore.command.AdminDto;
 import MindStore.command.ProductDto;
 import MindStore.command.UserDto;
 
@@ -17,4 +18,12 @@ public interface AdminServiceI {
     UserDto getUserById(Long id);
 
     List<UserDto> getUsersByName(String name);
+
+    AdminDto addAdmin(AdminDto adminDto);
+
+    ProductDto addProduct(ProductDto productDto);
+
+    UserDto addUser(UserDto userDto);
+
+    void deleteProduct(String title);
 }

@@ -1,24 +1,31 @@
 package MindStore.services;
 
+import MindStore.command.AdminDto;
 import MindStore.command.ProductDto;
 import MindStore.command.UserDto;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
+import MindStore.enums.RoleEnum;
+import MindStore.exceptions.ConflictException;
 import MindStore.exceptions.NotAllowedValueException;
 import MindStore.exceptions.NotFoundException;
-import MindStore.helpers.ValidateParams;
-import MindStore.persistence.models.Product;
-import MindStore.persistence.models.User;
-import MindStore.persistence.repositories.AdminRepository;
-import MindStore.persistence.repositories.ProductRepository;
-import MindStore.persistence.repositories.UserRepository;
+import MindStore.persistence.models.Person.Admin;
+import MindStore.persistence.models.Person.Role;
+import MindStore.persistence.models.Product.Category;
+import MindStore.persistence.models.Product.Product;
+import MindStore.persistence.models.Product.Rating;
+import MindStore.persistence.models.Person.User;
+import MindStore.persistence.repositories.Person.AdminRepository;
+import MindStore.persistence.repositories.Person.RoleRepository;
+import MindStore.persistence.repositories.Product.CategoryRepository;
+import MindStore.persistence.repositories.Product.ProductRepository;
+import MindStore.persistence.repositories.Person.UserRepository;
+import MindStore.persistence.repositories.Product.RatingRepository;
 import lombok.AllArgsConstructor;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static MindStore.helpers.ValidateParams.validatePages;
@@ -29,6 +36,9 @@ public class AdminService implements AdminServiceI {
     private AdminRepository adminRepository;
     private ProductRepository productRepository;
     private UserRepository userRepository;
+    private CategoryRepository categoryRepository;
+    private RatingRepository ratingRepository;
+    private RoleRepository roleRepository;
     private MainConverterI converter;
 
     @Override
@@ -61,7 +71,7 @@ public class AdminService implements AdminServiceI {
 
     @Override
     public List<ProductDto> getProductsByName(String title) {
-        List<Product> products = this.productRepository.findByTitle(title);
+        List<Product> products = this.productRepository.findByTitleLike(title);
         if (products.isEmpty()) throw new NotFoundException("Product not found");
         return this.converter.listConverter(products, ProductDto.class);
     }
@@ -99,5 +109,77 @@ public class AdminService implements AdminServiceI {
         List<User> user = this.userRepository.findByName(name);
         if (user.isEmpty()) throw new NotFoundException("User not found");
         return this.converter.listConverter(user, UserDto.class);
+    }
+
+    @Override
+    public AdminDto addAdmin(AdminDto adminDto) {
+        this.adminRepository.findByEmail(adminDto.getEmail())
+                .ifPresent(x -> {
+                    throw new ConflictException("Email is already being used");
+                });
+
+        Role role = this.roleRepository.findById(RoleEnum.ADMIN).
+                orElseThrow(() -> new NotFoundException("Role not found"));
+
+        Admin admin = this.converter.converter(adminDto, Admin.class);
+        admin.setRoleId(role);
+
+        return this.converter.converter(
+                this.adminRepository.save(admin), AdminDto.class
+        );
+    }
+
+    @Override
+    public ProductDto addProduct(ProductDto productDto) {
+        this.productRepository
+                .findByTitle(productDto.getTitle())
+                .ifPresent((x) -> {
+                    throw new ConflictException("Product already exists");
+                });
+
+        Category category = this.categoryRepository
+                .findByCategory(productDto.getCategory())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+
+        Rating rating = Rating.builder()
+                .rate(0)
+                .count(0)
+                .build();
+
+        Product product = this.converter.converter(productDto, Product.class);
+
+        this.ratingRepository.save(rating);
+        product.setCategory(category);
+        product.setRatingId(rating);
+
+        return this.converter.converter(
+                this.productRepository.save(product), ProductDto.class
+        );
+    }
+
+    @Override
+    public UserDto addUser(UserDto userDto) {
+        this.userRepository.findByEmail(userDto.getEmail())
+                .ifPresent(x -> {
+                    throw new ConflictException("Email is already being used");
+                });
+
+        Role role = this.roleRepository.findById(RoleEnum.USER).
+                orElseThrow(() -> new NotFoundException("Role not found"));
+
+        User user = this.converter.converter(userDto, User.class);
+        user.setRoleId(role);
+
+        return this.converter.converter(
+                this.userRepository.save(user), UserDto.class
+        );
+    }
+
+    @Override
+    public void deleteProduct(String title) {
+        Product product = this.productRepository.findByTitle(title)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        this.productRepository.delete(product);
     }
 }
