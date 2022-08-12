@@ -1,6 +1,6 @@
-package MindStore.persistence.repositories;
+package MindStore.persistence.repositories.Person;
 
-import MindStore.persistence.models.Admin;
+import MindStore.persistence.models.Person.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Long> {
 
+    Optional<Admin> findByEmail(String email);
 }

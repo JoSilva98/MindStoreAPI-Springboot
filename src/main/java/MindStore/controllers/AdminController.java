@@ -1,11 +1,13 @@
 package MindStore.controllers;
 
+import MindStore.command.AdminDto;
 import MindStore.command.ProductDto;
 import MindStore.command.UserDto;
 import MindStore.services.AdminServiceI;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -48,5 +50,29 @@ public class AdminController {
     @GetMapping("users/name/{name}")
     public List<UserDto> getUsersByName(@PathVariable("name") String name) {
         return this.adminService.getUsersByName(name);
+    }
+
+    @PostMapping
+    public AdminDto addAdmin(@Valid @RequestBody AdminDto adminDto) {
+        return this.adminService.addAdmin(adminDto);
+    }
+
+    @PostMapping("products")
+    public ProductDto addProduct(@Valid @RequestBody ProductDto productDto) {
+        return this.adminService.addProduct(productDto);
+    }
+
+    @PostMapping("users")
+    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
+        return this.adminService.addUser(userDto);
+    }
+
+    @PatchMapping("{id}")
+    public AdminDto update
+
+
+    @DeleteMapping("products/{title}")
+    public void deleteProduct(@PathVariable("title") String title) {
+        this.adminService.deleteProduct(title);
     }
 }

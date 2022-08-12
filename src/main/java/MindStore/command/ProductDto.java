@@ -1,14 +1,9 @@
 package MindStore.command;
 
-import MindStore.persistence.models.Category;
-import MindStore.persistence.models.Rating;
-import MindStore.persistence.models.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import javax.persistence.*;
 import javax.validation.constraints.*;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,7 +19,7 @@ public class ProductDto {
     @Size(min = 2, max = 30, message = "Product name should have at least 2 characters")
     private String title;
 
-    @NotEmpty
+    @NotNull //not null para numeros
     @Min(0)
     @Max(100000)
     private double price;
@@ -33,9 +28,8 @@ public class ProductDto {
     @Size(min = 2, max = 500, message = "Description name should have at least 2 characters and 500 max")
     private String description;
 
-    @NotNull //not null para numeros
-    @Min(0)
-    @Max(20)
+    @NotEmpty
+    @Size(min = 2, max = 20)
     private String category;
 
     @NotEmpty

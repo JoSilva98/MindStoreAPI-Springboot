@@ -1,13 +1,11 @@
-package MindStore.persistence.models;
+package MindStore.persistence.models.Person;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import MindStore.persistence.models.Product.Product;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ManyToAny;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -17,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class User extends Person{
+public class User extends Person {
 
     @Column(nullable = false)
     private LocalDate dateOfBirth;
