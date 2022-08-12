@@ -7,6 +7,8 @@ import MindStore.command.UserUpdateDto;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,37 +29,43 @@ public class UserController {
     }
 
     @GetMapping("/products/byname/{title}")
-    public List<ProductDto> getProductByTitle(@PathVariable("title") String title){
+    public List<ProductDto> getProductByTitle(@PathVariable("title") String title) {
         return this.userServiceI.getProductsByTitle(title);
     }
 
     @GetMapping("/products/bycategory/{category}")
-    public List<ProductDto> getProductByCategory(@PathVariable("category") String category){
+    public List<ProductDto> getProductByCategory(@PathVariable("category") String category) {
         return this.userServiceI.getProductByCategory(category);
     }
 
     @GetMapping("/products/{id}")
-    public ProductDto getProductById(@PathVariable("id") Long id){
+    public ProductDto getProductById(@PathVariable("id") Long id) {
         return this.userServiceI.getProductById(id);
     }
 
     @GetMapping("/categories/{id}")
-    public CategoryDto getCategoryById(@PathVariable("id") int id){
+    public CategoryDto getCategoryById(@PathVariable("id") int id) {
         return this.userServiceI.getCategoryById(id);
     }
 
     @GetMapping("/shoppingcart/{userid}")
-    public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId){
+    public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId) {
         return this.userServiceI.getShoppingCart(userId);
     }
 
     @PostMapping
-    public UserDto signUp(@Valid @RequestBody UserDto userDto){
+    public UserDto signUp(@Valid @RequestBody UserDto userDto) {
         return this.userServiceI.signUp(userDto);
     }
 
+    @PostMapping("buy/{id}")
+    public ResponseEntity<String> buyProducts(@PathVariable("id") Long id,
+                                              @Valid @RequestBody int payement) {
+        return this.userServiceI.buyProducts(id, payement);
+    }
+
     @PatchMapping("/{id}")
-    public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto){
+    public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
 

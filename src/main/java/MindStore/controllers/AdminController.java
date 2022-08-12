@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/admin")
+@RequestMapping("api/v1/admins")
 @AllArgsConstructor
 public class AdminController {
     private AdminServiceI adminService;
@@ -20,6 +20,15 @@ public class AdminController {
                                            @RequestParam(value = "page") int page,
                                            @RequestParam(value = "pagesize") int pageSize) {
         return this.adminService.getAllProducts(direction, field, page, pageSize);
+    }
+
+    @GetMapping("products/price")
+    public List<ProductDto> getAllProductsByPrice(@RequestParam(value = "direction") String direction,
+                                                  @RequestParam(value = "page") int page,
+                                                  @RequestParam(value = "pagesize") int pageSize,
+                                                  @RequestParam(value = "min") int minPrice,
+                                                  @RequestParam(value = "max") int maxPrice) {
+        return this.adminService.getAllProductsByPrice(direction, page, pageSize, minPrice, maxPrice);
     }
 
     @GetMapping("products/{id}")

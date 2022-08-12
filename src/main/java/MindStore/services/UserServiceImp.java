@@ -17,6 +17,8 @@ import MindStore.persistence.models.Product.Product;
 import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,7 +59,7 @@ public class UserServiceImp implements UserServiceI {
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
         List<Product> productList = categoryEntity.getProductList();
-        if(productList.isEmpty()){
+        if (productList.isEmpty()) {
             throw new NotFoundException("No products found with that category");
         }
 
@@ -103,12 +105,29 @@ public class UserServiceImp implements UserServiceI {
 
         //dar set do role, primeiro temos que o encontrar no rep
         Role role = this.roleRepository.findById(RoleEnum.USER)
-                        .orElseThrow(() -> new NotFoundException("Role not found"));
+                .orElseThrow(() -> new NotFoundException("Role not found"));
 
         userToSave.setRoleId(role);
         this.userRepository.save(userToSave);
 
         return this.mainConverter.converter(userToSave, UserDto.class);
+    }
+
+    @Override
+    public ResponseEntity<String> buyProducts(Long id, int payement) {
+        User user = this.userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        double totalPrice = user.getShoppingCart()
+                .stream()
+                .mapToDouble(Product::getPrice)
+                .sum();
+
+        if (totalPrice == 0) throw new NotFoundException("Your shopping cart is empty");
+
+        if (payement < totalPrice)
+            return new ResponseEntity<>("You don't have enough money", HttpStatus.EXPECTATION_FAILED);
+        return new ResponseEntity<>("Payement accepted!", HttpStatus.OK);
     }
 
     @Override
