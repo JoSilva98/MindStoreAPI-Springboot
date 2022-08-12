@@ -49,4 +49,8 @@ public class Product {
     @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "rating_id_fk") //do lado que pusermos o join colum é a table od vai aparecer
     private Rating ratingId;
+
+    public void decreaseStock() {
+        this.stock--;
+    }
 }

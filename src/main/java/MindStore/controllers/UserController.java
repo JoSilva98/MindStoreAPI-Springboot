@@ -60,6 +60,18 @@ public class UserController {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
 
+    @PatchMapping("addtocart")
+    public List<ProductDto> addProductToCart(@RequestParam(value = "userid") Long userId,
+                                             @RequestParam(value = "productid") Long productId) {
+        return this.userServiceI.addProductToCart(userId, productId);
+    }
+
+    @PatchMapping("removefromcart")
+    public List<ProductDto> removeProductFromCart(@RequestParam(value = "userid") Long userId,
+                                                  @RequestParam(value = "productid") Long productId) {
+        return this.userServiceI.removeProductFromCart(userId, productId);
+    }
+
     @PostMapping("buy/{id}")
     public ResponseEntity<String> buyProducts(@PathVariable("id") Long id,
                                               @Valid @RequestBody int payment) {
@@ -70,7 +82,7 @@ public class UserController {
     @PostMapping("/rating")
     public RatingDto giveRating(@RequestParam(value = "userid") Long userId,
                                 @RequestParam(value = "productid") Long productId,
-                                @RequestParam(value = "rating") double rating){
+                                @RequestParam(value = "rating") double rating) {
         return this.userServiceI.giveRating(userId, productId, rating);
     }
 
@@ -78,14 +90,14 @@ public class UserController {
 
     //filter price
     @GetMapping("/price")
-    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction){
+    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction) {
         return this.userServiceI.filterByPrice(direction);
     }
 
     //rating e alfabetic orders (fields)
     @GetMapping
     public List<ProductDto> filterByRatingAndAlphabetic(@RequestParam(value = "field") String field,
-                                                        @RequestParam(value = "direction") String direction){
+                                                        @RequestParam(value = "direction") String direction) {
         return this.userServiceI.filterByRatingAndAlphabetic(field, direction);
     }
 
