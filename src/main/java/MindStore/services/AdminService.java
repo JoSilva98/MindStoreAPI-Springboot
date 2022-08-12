@@ -3,6 +3,7 @@ package MindStore.services;
 import MindStore.command.*;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
+import MindStore.enums.ProductFieldsEnum;
 import MindStore.enums.RoleEnum;
 import MindStore.exceptions.ConflictException;
 import MindStore.exceptions.NotAllowedValueException;
@@ -21,11 +22,14 @@ import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.persistence.repositories.Product.RatingRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static MindStore.helpers.ValidateParams.validatePages;
 
@@ -45,21 +49,50 @@ public class AdminService implements AdminServiceI {
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
         validatePages(page, pageSize);
 
+        Arrays.stream(ProductFieldsEnum.values())
+                .filter(elm -> elm.getFIELD().equals(field))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Field not found"));
+
         List<Product> products;
         switch (direction) {
-            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize);
-            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize);
+            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize)
+                    .stream().toList();
+            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize)
+                    .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
 
         return this.converter.listConverter(products, ProductDto.class);
     }
 
-    private List<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
+    @Override
+    public List<ProductDto> getAllProductsByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
+        validatePages(page, pageSize);
+
+        if (minPrice < 0 || maxPrice > 1000)
+            throw new NotAllowedValueException("Price must be between 0 and 1000");
+
+        List<Product> products;
+        switch (direction) {
+            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, "price", page, pageSize)
+                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
+                    .toList();
+            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, "price", page, pageSize)
+                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
+                    .toList();
+            default -> throw new NotAllowedValueException("Direction not allowed");
+        }
+
+        return this.converter.listConverter(products, ProductDto.class);
+    }
+
+    //Enums do field
+    private Page<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
         return this.productRepository.findAll(
                 PageRequest.of(page - 1, pageSize)
                         .withSort(Sort.by(direction, field))
-        ).stream().toList();
+        );
     }
 
     @Override
