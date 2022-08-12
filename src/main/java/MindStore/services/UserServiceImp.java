@@ -7,6 +7,7 @@ import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.exceptions.NotFoundException;
 import MindStore.persistence.models.Product.Category;
 import MindStore.persistence.models.Product.Product;
+import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import lombok.AllArgsConstructor;
@@ -73,6 +74,10 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> getShoppingCart(Long userId) {
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        List<Product> productList = user.getShoppingCart();
         return null;
     }
 }
