@@ -6,6 +6,8 @@ import MindStore.enums.DirectionEnum;
 import MindStore.enums.ProductFieldsEnum;
 import MindStore.enums.RoleEnum;
 import MindStore.exceptions.ConflictException;
+import MindStore.exceptions.NotAllowedValueException;
+import MindStore.helpers.ValidateParams;
 import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Person.User;
 import MindStore.persistence.models.Product.Rating;
@@ -18,6 +20,8 @@ import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Product.RatingRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Sort;
@@ -27,6 +31,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static MindStore.helpers.ValidateParams.validatePages;
 
 
 @Service
@@ -44,8 +50,21 @@ public class UserServiceImp implements UserServiceI {
 
 
     @Override
-    public List<ProductDto> getAllProducts() {
-        return this.mainConverter.listConverter(this.productRepository.findAll(), ProductDto.class);
+    public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
+        //valida parametros das paginas (classe a parte), italico é static
+        validatePages(page, pageSize);
+
+        List<Product> products;
+        switch (direction){
+            //enum nosso e no findproducts funçao do java para dar a direção
+            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize)
+                    .stream().toList();
+            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize)
+                    .stream().toList();
+            default -> throw new NotAllowedValueException("Direction not allowed");
+        }
+
+        return this.mainConverter.listConverter(products, ProductDto.class);
     }
 
     @Override
@@ -274,5 +293,15 @@ public class UserServiceImp implements UserServiceI {
         );
 
         return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
+
+    //funçao paginação do get All products
+    private Page<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
+        return this.productRepository.findAll(
+                //vai buscar a pagina nr page-1 (para n poderem por pagina 0), e qtos queres
+                PageRequest.of(page - 1, pageSize)
+                        //sort com base na direção e no field do objeto (title, id)
+                        .withSort(Sort.by(direction, field))
+        );
     }
 }

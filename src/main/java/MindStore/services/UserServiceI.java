@@ -8,7 +8,7 @@ import java.util.List;
 
 
 public interface UserServiceI {
-    List<ProductDto> getAllProducts();
+    List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize);
 
     List<ProductDto> getProductsByTitle(String title);
 
