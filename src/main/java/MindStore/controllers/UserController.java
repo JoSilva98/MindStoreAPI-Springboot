@@ -61,9 +61,18 @@ public class UserController {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
 
+    //give rating
+    /*
+    user id para dar rating
+    product id para receber rating
+    body para dar rating
+     */
 
+//    @PostMapping("/ratings/{userid}/{productid}")
+//    public Rat
+
+    //update rating?
     //filter price
     //filter rating
     //filter alphabetic
-    //give rating
 }
