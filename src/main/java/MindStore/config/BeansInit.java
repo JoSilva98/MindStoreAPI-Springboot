@@ -21,10 +21,4 @@ public class BeansInit {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
-
-    //para os ratings
-    @Bean
-    public DecimalFormat decimalFormat(){
-        return new DecimalFormat("0.0");
-    }
 }

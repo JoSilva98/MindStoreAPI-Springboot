@@ -31,14 +31,12 @@ import org.springframework.stereotype.Service;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
+import static MindStore.helpers.FindBy.*;
 import static MindStore.helpers.ValidateParams.validatePages;
 
 @Service
 @AllArgsConstructor
-//@NoArgsConstructor aqui nao pode senao nao inicializa o rep e converter(?)
 public class UserServiceImp implements UserServiceI {
 
     private ProductRepository productRepository;
@@ -47,18 +45,15 @@ public class UserServiceImp implements UserServiceI {
     private RoleRepository roleRepository;
     private RatingRepository ratingRepository;
     private MainConverterI mainConverter;
-    private DecimalFormat decimalFormat;
     private PasswordEncoder encoder;
     private final CheckAuth checkAuth;
 
     @Override
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
-        //valida parametros das paginas (classe a parte), italico é static
         validatePages(page, pageSize);
 
         List<Product> products;
         switch (direction) {
-            //enum nosso e no findproducts funçao do java para dar a direção
             case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize)
                     .stream().toList();
             case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize)
@@ -70,60 +65,43 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public List<ProductDto> getProductsByTitle(String title, String direction, int page, int pageSize) {
+    public List<ProductDto> getProductsByTitle(String title, int page, int pageSize) {
         validatePages(page, pageSize);
 
-        List<Product> productsList = this.productRepository.findByTitleLike(title);
-        if (productsList.isEmpty()) {
+        int offset = (page - 1) * pageSize;
+        List<Product> productsList = this.productRepository.findAllByTitle(title, pageSize, offset);
+
+        if (productsList.isEmpty())
             throw new NotFoundException("No products found with such name");
-        }
-        switch (direction) {
-            //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC -> productsList = findProducts(Sort.Direction.ASC, ProductFieldsEnum.TITLE, page, pageSize)
-                    .stream().toList();
-            case DirectionEnum.DESC -> productsList = findProducts(Sort.Direction.DESC, ProductFieldsEnum.TITLE, page, pageSize)
-                    .stream().toList();
-            default -> throw new NotAllowedValueException("Direction not allowed");
-        }
+
         return this.mainConverter.listConverter(productsList, ProductDto.class);
     }
 
     @Override
-    public List<ProductDto> getProductByCategory(String category, String direction, int page, int pageSize) {
+    public List<ProductDto> getProductByCategory(String category, int page, int pageSize) {
+        validatePages(page, pageSize);
+
         Category categoryEntity = this.categoryRepository.findByCategory(category)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
-        List<Product> productList = categoryEntity.getProductList();
-        if (productList.isEmpty()) {
-            throw new NotFoundException("No products found with that category");
-        }
+        int offset = (page - 1) * pageSize;
+        List<Product> productList = this.productRepository.findAllByCategory(categoryEntity.getId(), pageSize, offset);
 
-        switch (direction) {
-            //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC ->
-                    productList = findProducts(Sort.Direction.ASC, ProductFieldsEnum.CATEGORY, page, pageSize)
-                            .stream().toList();
-            case DirectionEnum.DESC ->
-                    productList = findProducts(Sort.Direction.DESC, ProductFieldsEnum.CATEGORY, page, pageSize)
-                            .stream().toList();
-            default -> throw new NotAllowedValueException("Direction not allowed");
-        }
+        if (productList.isEmpty())
+            throw new NotFoundException("No products found with that category");
+
         return this.mainConverter.listConverter(productList, ProductDto.class);
     }
 
     @Override
     public ProductDto getProductById(Long id) {
-        Product product = this.productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
-
+        Product product = findProductById(id, this.productRepository);
         return this.mainConverter.converter(product, ProductDto.class);
     }
 
     @Override
     public CategoryDto getCategoryById(int id) {
-        Category category = this.categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category not found"));
-
+        Category category = findCategoryById(id, this.categoryRepository);
         return this.mainConverter.converter(category, CategoryDto.class);
     }
 
@@ -131,24 +109,19 @@ public class UserServiceImp implements UserServiceI {
     public List<ProductDto> getShoppingCart(Long userId) {
         this.checkAuth.checkUserId(userId);
 
-        User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        List<Product> productList = user.getShoppingCart();
-
+        List<Product> productList = findUserById(userId, this.userRepository).getShoppingCart();
         return this.mainConverter.listConverter(productList, ProductDto.class);
     }
 
     @Override
-    public String getCartTotalPrice(Long userId) {
+    public Double getCartTotalPrice(Long userId) {
         this.checkAuth.checkUserId(userId);
 
-        User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user = findUserById(userId, this.userRepository);
 
         return user.getShoppingCart().stream()
                 .mapToDouble(Product::getPrice)
-                .sum() + "€";
+                .sum();
     }
 
     @Override
@@ -159,10 +132,7 @@ public class UserServiceImp implements UserServiceI {
                 });
 
         User userToSave = this.mainConverter.converter(userDto, User.class);
-
-        //dar set do role, primeiro temos que o encontrar no rep
-        Role role = this.roleRepository.findById(RoleEnum.USER)
-                .orElseThrow(() -> new NotFoundException("Role not found"));
+        Role role = findRoleById(RoleEnum.USER, this.roleRepository);
 
         userToSave.setRoleId(role);
         userToSave.setPassword(this.encoder.encode(userToSave.getPassword()));
@@ -175,11 +145,7 @@ public class UserServiceImp implements UserServiceI {
     public ResponseEntity<String> buyProducts(Long id, int payment) {
         this.checkAuth.checkUserId(id);
 
-        User user = this.userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        //no caso de 2 users terem no shoping cart ao mesmo tempo e 1 comprar primeiro temos de lançar exceçao
-        //para o outro
+        User user = findUserById(id, this.userRepository);
         user.getShoppingCart()
                 .forEach(product -> {
                     if (product.getStock() == 0) {
@@ -187,13 +153,9 @@ public class UserServiceImp implements UserServiceI {
                     }
                 });
 
-        double totalPrice = user.getShoppingCart()
-                .stream()
-                .mapToDouble(Product::getPrice)
-                .sum();
+        double totalPrice = getCartTotalPrice(id);
 
         if (totalPrice == 0) throw new NotFoundException("Your shopping cart is empty");
-
         if (payment < totalPrice)
             return new ResponseEntity<>("You don't have enough money", HttpStatus.EXPECTATION_FAILED);
 
@@ -208,95 +170,78 @@ public class UserServiceImp implements UserServiceI {
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         this.checkAuth.checkUserId(id);
 
-        User user = this.userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
+        User user = findUserById(id, this.userRepository);
         User updatedUser = this.mainConverter.updateConverter(userUpdateDto, user);
 
         if (userUpdateDto.getPassword() != null)
             updatedUser.setPassword(this.encoder.encode(userUpdateDto.getPassword()));
 
         this.userRepository.save(updatedUser);
-
         return this.mainConverter.converter(updatedUser, UserDto.class);
     }
 
     @Override
-    public RatingDto giveRating(Long userId, Long productId, double rating) {
+    public RatingDto rateProduct(Long userId, Long productId, int rating) {
         this.checkAuth.checkUserId(userId);
 
-        if (rating < 0 || rating > 5) {
+        if (rating < 1 || rating > 5)
             throw new ConflictException("Rating value should be between 0 and 5");
-        }
 
-        User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        Product product = this.productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
-
-        /*
-        ver o count da rating associada ao produto
-        adicionar a nossa e fazer nova media e fazer set count + 1 e set rating nova
-         */
+        User user = findUserById(userId, this.userRepository);
+        Product product = findProductById(productId, this.productRepository);
+        Rating ratingEntity = product.getRatingId();
 
         double oldRating = product.getRatingId().getRate();
-        int ratingCount = product.getRatingId().getCount(); //120
+        int ratingCount;
+        double newRating;
 
-        double newRating = oldRating + ((rating - oldRating) / (ratingCount + 1));
-        //para por a rating so com 1 casa decimal, o parse double pq decimal format devolve string
-        double newRatingFormatted = Double.parseDouble(decimalFormat.format(newRating));
-
-        product.getRatingId().setRate(newRatingFormatted);
-        product.getRatingId().setCount(ratingCount + 1);
-        this.productRepository.save(product);
-
-        //product.getRatingId() vai buscar o objeto rating
-        return this.mainConverter.converter(product.getRatingId(), RatingDto.class);
-    }
-
-    @Override
-    public List<ProductDto> filterByPrice(String direction) {
-        return switch (direction) {
-            case DirectionEnum.ASC -> ascendingDirectionPrice(direction);
-            case DirectionEnum.DESC -> descendingDirectionPrice(direction);
-            default -> throw new NotFoundException("Input is not a direction");
-        };
-    }
-
-    @Override
-    public List<ProductDto> filterByRatingOrTitle(String field, String direction) {
-        List<ProductDto> productList = new ArrayList<>();
-
-        switch (field) {
-            case ProductFieldsEnum.RATING -> {
-                //ignore case para poder por asc
-                if (direction.equalsIgnoreCase(DirectionEnum.ASC)) {
-                    productList = ascendingRating(direction);
-                } else if (direction.equals(DirectionEnum.DESC)) {
-                    productList = descendingRating(direction);
-                }
-            }
-            case ProductFieldsEnum.TITLE -> {
-                if (direction.equalsIgnoreCase(DirectionEnum.ASC)) {
-                    productList = ascendingTitle(direction);
-                } else if (direction.equals(DirectionEnum.DESC)) {
-                    productList = descendingTitle(direction);
-                }
-            }
-            default -> throw new NotFoundException("Field not found");
+        if (!ratingEntity.addUser(user)) {
+            ratingCount = product.getRatingId().getCount();
+            newRating = (oldRating) + ((rating - oldRating) / ratingCount);
+        } else {
+            ratingCount = product.getRatingId().getCount() + 1;
+            newRating = oldRating + ((rating - oldRating) / ratingCount);
         }
-        return productList;
+
+        //Resolver problema do rating mais tarde
+
+        ratingEntity.setCount(ratingCount);
+        ratingEntity.setRate(newRating);
+
+        this.ratingRepository.save(ratingEntity);
+        this.productRepository.save(product);
+        this.userRepository.save(user);
+
+        return this.mainConverter.converter(ratingEntity, RatingDto.class);
+    }
+
+    @Override
+    public List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
+        validatePages(page, pageSize);
+
+        if (minPrice < 0 || maxPrice > 1000)
+            throw new NotAllowedValueException("Price must be between 0 and 1000");
+
+        List<Product> products;
+        switch (direction) {
+            case DirectionEnum.ASC -> products = findProductsPrice(Sort.Direction.ASC, page, pageSize)
+                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
+                    .toList();
+            case DirectionEnum.DESC -> products = findProductsPrice(Sort.Direction.DESC, page, pageSize)
+                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
+                    .toList();
+            default -> throw new NotAllowedValueException("Direction not allowed");
+        }
+
+        return this.mainConverter.listConverter(products, ProductDto.class);
     }
 
     @Override
     public List<ProductDto> addProductToCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
-        User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        Product product = this.productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+        User user = findUserById(userId, this.userRepository);
+        Product product = findProductById(productId, this.productRepository);
 
         if (product.getStock() == 0) {
             throw new NotFoundException("No stock on this product");
@@ -312,11 +257,8 @@ public class UserServiceImp implements UserServiceI {
     public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
-        User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        Product product = this.productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+        User user = findUserById(userId, this.userRepository);
+        Product product = findProductById(productId, this.productRepository);
 
         if (!user.getShoppingCart().contains(product))
             throw new NotFoundException("Product not found on the shopping cart");
@@ -327,77 +269,20 @@ public class UserServiceImp implements UserServiceI {
         return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
     }
 
-    //rating and alphabetic:
-
-    private List<ProductDto> ascendingRating(String direction) {
-        //tabela rating e ordenar e buscar products associadoas
-        List<Rating> ratings = this.ratingRepository.findAll(
-                Sort.by(Sort.Direction.ASC, "rate")
-        );
-
-        List<Product> productList = ratings.stream()
-                .map((rating) -> rating.getProductId())
-                .toList();
-
-        return this.mainConverter.listConverter(productList, ProductDto.class);
-    }
-
-    private List<ProductDto> descendingRating(String direction) {
-
-        List<Rating> ratings = this.ratingRepository.findAll(
-                Sort.by(Sort.Direction.DESC, "rate")
-        );
-
-        List<Product> productList = ratings.stream()
-                .map((rating) -> rating.getProductId())
-                .toList();
-
-        return this.mainConverter.listConverter(productList, ProductDto.class);
-    }
-
-    private List<ProductDto> ascendingTitle(String direction) {
-        List<Product> productList = this.productRepository.findAll(
-                Sort.by(Sort.Direction.ASC, "title")
-        );
-
-        return this.mainConverter.listConverter(productList, ProductDto.class);
-    }
-
-    private List<ProductDto> descendingTitle(String direction) {
-        List<Product> productList = this.productRepository.findAll(
-                Sort.by(Sort.Direction.DESC, "title")
-        );
-
-        return this.mainConverter.listConverter(productList, ProductDto.class);
-    }
-
-    //price
-    private List<ProductDto> ascendingDirectionPrice(String direction) {
-        /*
-        vai a tabela products e vai fazer por ordem descendetente com base na coluna preço
-         */
-        List<Product> productList = this.productRepository.findAll(
-                Sort.by(Sort.Direction.ASC, "price")
-        );
-
-        return this.mainConverter.listConverter(productList, ProductDto.class);
-    }
-
-    private List<ProductDto> descendingDirectionPrice(String direction) {
-        List<Product> productList = this.productRepository.findAll(
-                Sort.by(Sort.Direction.DESC, "price")
-        );
-
-        return this.mainConverter.listConverter(productList, ProductDto.class);
-    }
-
-    //funçao paginação do get All products
     private Page<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
+        if (!ProductFieldsEnum.FIELDS.contains(field))
+            throw new NotFoundException("Field not found");
+
         return this.productRepository.findAll(
-                //vai buscar a pagina nr page-1 (para n poderem por pagina 0), e qtos queres
                 PageRequest.of(page - 1, pageSize)
-                        //sort com base na direção e no field do objeto (title, id)
                         .withSort(Sort.by(direction, field))
+        );
+    }
+
+    private Page<Product> findProductsPrice(Sort.Direction direction, int page, int pageSize) {
+        return this.productRepository.findAll(
+                PageRequest.of(page - 1, pageSize)
+                        .withSort(Sort.by(direction, ProductFieldsEnum.PRICE))
         );
     }
 }

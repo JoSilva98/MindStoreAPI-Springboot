@@ -1,13 +1,16 @@
 package MindStore.persistence.models.Person;
 
 import MindStore.persistence.models.Product.Product;
+import MindStore.persistence.models.Product.Rating;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,11 +35,18 @@ public class User extends Person {
     )
     private List<Product> shoppingCart = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "userList")
+    private Set<Rating> ratingList;
+
     public void addProductToCart(Product product) {
         this.shoppingCart.add(product);
     }
 
     public void removeProductFromCart(Product product) {
         this.shoppingCart.remove(product);
+    }
+
+    public boolean addRating(Rating rating) {
+        return this.ratingList.add(rating);
     }
 }

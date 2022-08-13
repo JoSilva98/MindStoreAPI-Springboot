@@ -29,10 +29,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static MindStore.helpers.FindBy.*;
 import static MindStore.helpers.ValidateParams.validatePages;
 
 @Service
@@ -52,11 +51,6 @@ public class AdminService implements AdminServiceI {
     @Override
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
         validatePages(page, pageSize);
-
-        ProductFieldsEnum.FIELDS.stream()
-                .filter(elm -> elm.equalsIgnoreCase(field))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Field not found"));
 
         List<Product> products;
         switch (direction) {
@@ -79,10 +73,10 @@ public class AdminService implements AdminServiceI {
 
         List<Product> products;
         switch (direction) {
-            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, "price", page, pageSize)
+            case DirectionEnum.ASC -> products = findProductsPrice(Sort.Direction.ASC, page, pageSize)
                     .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
                     .toList();
-            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, "price", page, pageSize)
+            case DirectionEnum.DESC -> products = findProductsPrice(Sort.Direction.DESC, page, pageSize)
                     .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
                     .toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
@@ -91,18 +85,26 @@ public class AdminService implements AdminServiceI {
         return this.converter.listConverter(products, ProductDto.class);
     }
 
-    //Enums do field
     private Page<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
+        if (!ProductFieldsEnum.FIELDS.contains(field))
+            throw new NotFoundException("Field not found");
+
         return this.productRepository.findAll(
                 PageRequest.of(page - 1, pageSize)
                         .withSort(Sort.by(direction, field))
         );
     }
 
+    private Page<Product> findProductsPrice(Sort.Direction direction, int page, int pageSize) {
+        return this.productRepository.findAll(
+                PageRequest.of(page - 1, pageSize)
+                        .withSort(Sort.by(direction, ProductFieldsEnum.PRICE))
+        );
+    }
+
     @Override
     public ProductDto getProductById(Long id) {
-        Product product = this.productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+        Product product = findProductById(id, this.productRepository);
         return this.converter.converter(product, ProductDto.class);
     }
 
@@ -136,8 +138,7 @@ public class AdminService implements AdminServiceI {
 
     @Override
     public UserDto getUserById(Long id) {
-        User user = this.userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user = findUserById(id, this.userRepository);
         return this.converter.converter(user, UserDto.class);
     }
 
@@ -155,8 +156,7 @@ public class AdminService implements AdminServiceI {
                     throw new ConflictException("Email is already being used");
                 });
 
-        Role role = this.roleRepository.findById(RoleEnum.ADMIN).
-                orElseThrow(() -> new NotFoundException("Role not found"));
+        Role role = findRoleById(RoleEnum.ADMIN, this.roleRepository);
 
         Admin admin = this.converter.converter(adminDto, Admin.class);
         admin.setRoleId(role);
@@ -201,8 +201,7 @@ public class AdminService implements AdminServiceI {
                     throw new ConflictException("Email is already being used");
                 });
 
-        Role role = this.roleRepository.findById(RoleEnum.USER).
-                orElseThrow(() -> new NotFoundException("Role not found"));
+        Role role = findRoleById(RoleEnum.USER, this.roleRepository);
 
         User user = this.converter.converter(userDto, User.class);
         user.setRoleId(role);
@@ -217,8 +216,7 @@ public class AdminService implements AdminServiceI {
     public AdminDto updateAdmin(Long id, AdminUpdateDto adminUpdateDto) {
         this.checkAuth.checkUserId(id);
 
-        Admin admin = this.adminRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Admin not found"));
+        Admin admin = findAdminById(id, this.adminRepository);
 
         this.personRepository.findByEmail(adminUpdateDto.getEmail())
                 .ifPresent(x -> {
@@ -237,8 +235,7 @@ public class AdminService implements AdminServiceI {
 
     @Override
     public ProductDto updateProduct(Long id, ProductUpdateDto productUpdateDto) {
-        Product product = this.productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+        Product product = findProductById(id, this.productRepository);
 
         this.productRepository.findByTitle(productUpdateDto.getTitle())
                 .ifPresent(x -> {
@@ -254,8 +251,7 @@ public class AdminService implements AdminServiceI {
 
     @Override
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
-        User user = this.userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user = findUserById(id, this.userRepository);
 
         this.personRepository.findByEmail(userUpdateDto.getEmail())
                 .ifPresent(x -> {

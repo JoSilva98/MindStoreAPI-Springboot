@@ -13,12 +13,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
-
     private UserServiceI userServiceI;
 
-    //posso apresentar list porque set ja esta na entidade para ser filtrado
-    //request param para a lista sair paginada
-    //direction asc ou desc, field é o tipo que queremos (title, price.), qual a pagina, pagesize qtos products per page
     @GetMapping("/products")
     public List<ProductDto> getAllProducts(@RequestParam(value = "direction") String direction,
                                            @RequestParam(value = "field") String field,
@@ -26,90 +22,96 @@ public class UserController {
                                            @RequestParam(value = "pagesize") int pageSize) {
         return this.userServiceI.getAllProducts(direction, field, page, pageSize);
     }
+    //Done
 
-    @GetMapping("/products/byname/{title}")
-    public List<ProductDto> getProductByTitle(@PathVariable("title") String title,
-                                              @RequestParam(value = "direction") String direction,
+    @GetMapping("/products/byname")
+    public List<ProductDto> getProductByTitle(@RequestParam(value = "title") String title,
                                               @RequestParam(value = "page") int page,
                                               @RequestParam(value = "pagesize") int pageSize) {
-        return this.userServiceI.getProductsByTitle(title, direction, page, pageSize);
+        return this.userServiceI.getProductsByTitle(title, page, pageSize);
     }
+    //Done
 
-    @GetMapping("/products/bycategory/{category}")
-    public List<ProductDto> getProductByCategory(@PathVariable("category") String category,
-                                                 @RequestParam(value = "direction") String direction,
+    @GetMapping("/products/bycategory")
+    public List<ProductDto> getProductByCategory(@RequestParam("category") String category,
                                                  @RequestParam(value = "page") int page,
                                                  @RequestParam(value = "pagesize") int pageSize) {
-        return this.userServiceI.getProductByCategory(category, direction, page, pageSize);
+        return this.userServiceI.getProductByCategory(category, page, pageSize);
     }
+    //Done
 
     @GetMapping("/products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long id) {
         return this.userServiceI.getProductById(id);
     }
+    //Done
 
     @GetMapping("/categories/{id}")
     public CategoryDto getCategoryById(@PathVariable("id") int id) {
         return this.userServiceI.getCategoryById(id);
     }
+    //Done
 
     @GetMapping("/shoppingcart/{userid}")
     public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId) {
         return this.userServiceI.getShoppingCart(userId);
     }
+    //Done
 
     @GetMapping("/shoppingcart/price/{userid}")
     public String getCartTotalPrice(@PathVariable("userid") Long userId) {
-        return this.userServiceI.getCartTotalPrice(userId);
+        return this.userServiceI.getCartTotalPrice(userId) + "€";
     }
+    //Done
 
     @PostMapping
     public UserDto signUp(@Valid @RequestBody UserDto userDto) {
         return this.userServiceI.signUp(userDto);
     }
+    //Done
 
     @PatchMapping("/{id}")
     public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
+    //Done
 
     @PatchMapping("addtocart")
     public List<ProductDto> addProductToCart(@RequestParam(value = "userid") Long userId,
                                              @RequestParam(value = "productid") Long productId) {
         return this.userServiceI.addProductToCart(userId, productId);
     }
+    //Done
 
     @PatchMapping("removefromcart")
     public List<ProductDto> removeProductFromCart(@RequestParam(value = "userid") Long userId,
                                                   @RequestParam(value = "productid") Long productId) {
         return this.userServiceI.removeProductFromCart(userId, productId);
     }
+    //Done
 
     @PostMapping("buy/{id}")
     public ResponseEntity<String> buyProducts(@PathVariable("id") Long id,
                                               @Valid @RequestBody int payment) {
         return this.userServiceI.buyProducts(id, payment);
     }
+    //Done
 
     @PostMapping("/rating")
-    public RatingDto giveRating(@RequestParam(value = "userid") Long userId,
-                                @RequestParam(value = "productid") Long productId,
-                                @RequestParam(value = "rating") double rating) {
-        return this.userServiceI.giveRating(userId, productId, rating);
+    public RatingDto rateProduct(@RequestParam(value = "userid") Long userId,
+                                 @RequestParam(value = "productid") Long productId,
+                                 @RequestParam(value = "rating") int rating) {
+        return this.userServiceI.rateProduct(userId, productId, rating);
     }
+    //To Do
 
-    //update rating?
-
-    //filter price
     @GetMapping("/price")
-    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction) {
-        return this.userServiceI.filterByPrice(direction);
+    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction,
+                                          @RequestParam(value = "page") int page,
+                                          @RequestParam(value = "pagesize") int pageSize,
+                                          @RequestParam(value = "min") int minPrice,
+                                          @RequestParam(value = "max") int maxPrice) {
+        return this.userServiceI.filterByPrice(direction, page, pageSize, minPrice, maxPrice);
     }
-
-    //rating e alfabetic orders (fields)
-    @GetMapping
-    public List<ProductDto> filterByRatingOrTitle(@RequestParam(value = "field") String field,
-                                                  @RequestParam(value = "direction") String direction) {
-        return this.userServiceI.filterByRatingOrTitle(field, direction);
-    }
+    //Done
 }

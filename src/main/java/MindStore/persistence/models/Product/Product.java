@@ -15,6 +15,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "products")
+@EqualsAndHashCode
 public class Product {
 
     @Id
