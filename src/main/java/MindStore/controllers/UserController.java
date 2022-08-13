@@ -3,14 +3,11 @@ package MindStore.controllers;
 import MindStore.command.*;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 @RestController
@@ -31,13 +28,19 @@ public class UserController {
     }
 
     @GetMapping("/products/byname/{title}")
-    public List<ProductDto> getProductByTitle(@PathVariable("title") String title) {
-        return this.userServiceI.getProductsByTitle(title);
+    public List<ProductDto> getProductByTitle(@PathVariable("title") String title,
+                                              @RequestParam(value = "direction") String direction,
+                                              @RequestParam(value = "page") int page,
+                                              @RequestParam(value = "pagesize") int pageSize){
+        return this.userServiceI.getProductsByTitle(title, direction, page, pageSize);
     }
 
     @GetMapping("/products/bycategory/{category}")
-    public List<ProductDto> getProductByCategory(@PathVariable("category") String category) {
-        return this.userServiceI.getProductByCategory(category);
+    public List<ProductDto> getProductByCategory(@PathVariable("category") String category,
+                                                 @RequestParam(value = "direction") String direction,
+                                                 @RequestParam(value = "page") int page,
+                                                 @RequestParam(value = "pagesize") int pageSize){
+        return this.userServiceI.getProductByCategory(category, direction, page, pageSize);
     }
 
     @GetMapping("/products/{id}")
@@ -106,9 +109,9 @@ public class UserController {
 
     //rating e alfabetic orders (fields)
     @GetMapping
-    public List<ProductDto> filterByRatingAndAlphabetic(@RequestParam(value = "field") String field,
-                                                        @RequestParam(value = "direction") String direction) {
-        return this.userServiceI.filterByRatingAndAlphabetic(field, direction);
+    public List<ProductDto> filterByRatingOrTitle(@RequestParam(value = "field") String field,
+                                                  @RequestParam(value = "direction") String direction) {
+        return this.userServiceI.filterByRatingOrTitle(field, direction);
     }
 
 }
