@@ -31,7 +31,7 @@ public class UserController {
     public List<ProductDto> getProductByTitle(@PathVariable("title") String title,
                                               @RequestParam(value = "direction") String direction,
                                               @RequestParam(value = "page") int page,
-                                              @RequestParam(value = "pagesize") int pageSize){
+                                              @RequestParam(value = "pagesize") int pageSize) {
         return this.userServiceI.getProductsByTitle(title, direction, page, pageSize);
     }
 
@@ -39,7 +39,7 @@ public class UserController {
     public List<ProductDto> getProductByCategory(@PathVariable("category") String category,
                                                  @RequestParam(value = "direction") String direction,
                                                  @RequestParam(value = "page") int page,
-                                                 @RequestParam(value = "pagesize") int pageSize){
+                                                 @RequestParam(value = "pagesize") int pageSize) {
         return this.userServiceI.getProductByCategory(category, direction, page, pageSize);
     }
 
@@ -91,7 +91,6 @@ public class UserController {
         return this.userServiceI.buyProducts(id, payment);
     }
 
-
     @PostMapping("/rating")
     public RatingDto giveRating(@RequestParam(value = "userid") Long userId,
                                 @RequestParam(value = "productid") Long productId,
@@ -113,5 +112,4 @@ public class UserController {
                                                   @RequestParam(value = "direction") String direction) {
         return this.userServiceI.filterByRatingOrTitle(field, direction);
     }
-
 }

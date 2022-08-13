@@ -20,7 +20,6 @@ import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Product.RatingRepository;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,22 +65,23 @@ public class UserServiceImp implements UserServiceI {
                     .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
+
         return this.mainConverter.listConverter(products, ProductDto.class);
     }
 
     @Override
-    public List<ProductDto> getProductsByTitle(String title, String direction, String field, int page, int pageSize) {
+    public List<ProductDto> getProductsByTitle(String title, String direction, int page, int pageSize) {
         validatePages(page, pageSize);
 
         List<Product> productsList = this.productRepository.findByTitleLike(title);
         if (productsList.isEmpty()) {
             throw new NotFoundException("No products found with such name");
         }
-        switch (direction){
+        switch (direction) {
             //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC -> productsList = findProducts(Sort.Direction.ASC, field, page, pageSize)
+            case DirectionEnum.ASC -> productsList = findProducts(Sort.Direction.ASC, ProductFieldsEnum.TITLE, page, pageSize)
                     .stream().toList();
-            case DirectionEnum.DESC -> productsList = findProducts(Sort.Direction.DESC, field, page, pageSize)
+            case DirectionEnum.DESC -> productsList = findProducts(Sort.Direction.DESC, ProductFieldsEnum.TITLE, page, pageSize)
                     .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
@@ -90,7 +89,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public List<ProductDto> getProductByCategory(String category, String direction, String field, int page, int pageSize) {
+    public List<ProductDto> getProductByCategory(String category, String direction, int page, int pageSize) {
         Category categoryEntity = this.categoryRepository.findByCategory(category)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
@@ -99,12 +98,14 @@ public class UserServiceImp implements UserServiceI {
             throw new NotFoundException("No products found with that category");
         }
 
-        switch (direction){
+        switch (direction) {
             //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC -> productList = findProducts(Sort.Direction.ASC, field, page, pageSize)
-                    .stream().toList();
-            case DirectionEnum.DESC -> productList = findProducts(Sort.Direction.DESC, field, page, pageSize)
-                    .stream().toList();
+            case DirectionEnum.ASC ->
+                    productList = findProducts(Sort.Direction.ASC, ProductFieldsEnum.CATEGORY, page, pageSize)
+                            .stream().toList();
+            case DirectionEnum.DESC ->
+                    productList = findProducts(Sort.Direction.DESC, ProductFieldsEnum.CATEGORY, page, pageSize)
+                            .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
         return this.mainConverter.listConverter(productList, ProductDto.class);
@@ -127,7 +128,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public List<ProductDto> getShoppingCart(Long userId, String direction, String field, int page, int pageSize) {
+    public List<ProductDto> getShoppingCart(Long userId) {
         this.checkAuth.checkUserId(userId);
 
         User user = this.userRepository.findById(userId)
@@ -135,18 +136,7 @@ public class UserServiceImp implements UserServiceI {
 
         List<Product> productList = user.getShoppingCart();
 
-        switch (direction) {
-            //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC -> productList = findProducts(Sort.Direction.ASC, field, page, pageSize)
-                    .stream().collect(Collectors.toSet());
-            case DirectionEnum.DESC -> productList = findProducts(Sort.Direction.DESC, field, page, pageSize)
-                    .stream().collect(Collectors.toSet());
-            default -> throw new NotAllowedValueException("Direction not allowed");
-
-        }
-            return productList.stream()
-                    .map(product -> mainConverter.converter(product, ProductDto.class))
-                    .toList();
+        return this.mainConverter.listConverter(productList, ProductDto.class);
     }
 
     @Override
