@@ -55,6 +55,11 @@ public class UserController {
         return this.userServiceI.getShoppingCart(userId);
     }
 
+    @GetMapping("/shoppingcart/price/{userid}")
+    public String getCartTotalPrice(@PathVariable("userid") Long userId) {
+        return this.userServiceI.getCartTotalPrice(userId);
+    }
+
     @PostMapping
     public UserDto signUp(@Valid @RequestBody UserDto userDto) {
         return this.userServiceI.signUp(userDto);

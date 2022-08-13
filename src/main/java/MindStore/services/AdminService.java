@@ -1,6 +1,7 @@
 package MindStore.services;
 
 import MindStore.command.*;
+import MindStore.config.CheckAuth;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
 import MindStore.enums.ProductFieldsEnum;
@@ -25,6 +26,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -44,6 +46,8 @@ public class AdminService implements AdminServiceI {
     private RatingRepository ratingRepository;
     private RoleRepository roleRepository;
     private MainConverterI converter;
+    private PasswordEncoder encoder;
+    private final CheckAuth checkAuth;
 
     @Override
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
@@ -202,6 +206,7 @@ public class AdminService implements AdminServiceI {
 
         User user = this.converter.converter(userDto, User.class);
         user.setRoleId(role);
+        user.setPassword(this.encoder.encode(userDto.getPassword()));
 
         return this.converter.converter(
                 this.userRepository.save(user), UserDto.class
@@ -210,6 +215,8 @@ public class AdminService implements AdminServiceI {
 
     @Override
     public AdminDto updateAdmin(Long id, AdminUpdateDto adminUpdateDto) {
+        this.checkAuth.checkUserId(id);
+
         Admin admin = this.adminRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Admin not found"));
 
@@ -219,6 +226,9 @@ public class AdminService implements AdminServiceI {
                 });
 
         admin = this.converter.updateConverter(adminUpdateDto, admin);
+
+        if (adminUpdateDto.getPassword() != null)
+            admin.setPassword(this.encoder.encode(adminUpdateDto.getPassword()));
 
         return this.converter.converter(
                 this.adminRepository.save(admin), AdminDto.class
@@ -253,6 +263,9 @@ public class AdminService implements AdminServiceI {
                 });
 
         user = this.converter.updateConverter(userUpdateDto, user);
+
+        if (userUpdateDto.getPassword() != null)
+            user.setPassword(this.encoder.encode(userUpdateDto.getPassword()));
 
         return this.converter.converter(
                 this.userRepository.save(user), UserDto.class

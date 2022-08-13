@@ -18,6 +18,7 @@ public interface UserServiceI {
     CategoryDto getCategoryById(int id);
 
     List<ProductDto> getShoppingCart(Long userId);
+    String getCartTotalPrice(Long userId);
 
     UserDto signUp(UserDto userDto);
 

@@ -7,10 +7,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.DecimalFormat;
 
-
 @Configuration
 public class BeansInit {
-
     //metodo que retorna nova instancia de model mapper
     //qd vamos buscar como atributo em alguma classe ele instancia novo modelMapper (injeta la dentro)
     @Bean
