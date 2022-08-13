@@ -1,13 +1,13 @@
 package MindStore.persistence.models.Person;
 
+import MindStore.persistence.models.Product.IndividualRating;
 import MindStore.persistence.models.Product.Product;
-import MindStore.persistence.models.Product.Rating;
+import MindStore.persistence.models.Product.AverageRating;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -35,8 +35,8 @@ public class User extends Person {
     )
     private List<Product> shoppingCart = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "userList")
-    private Set<Rating> ratingList;
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.DETACH)
+    private List<IndividualRating> individualRatings;
 
     public void addProductToCart(Product product) {
         this.shoppingCart.add(product);
@@ -44,9 +44,5 @@ public class User extends Person {
 
     public void removeProductFromCart(Product product) {
         this.shoppingCart.remove(product);
-    }
-
-    public boolean addRating(Rating rating) {
-        return this.ratingList.add(rating);
     }
 }

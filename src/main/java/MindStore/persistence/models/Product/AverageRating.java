@@ -13,8 +13,8 @@ import java.util.Set;
 @Setter
 @Builder
 @Entity
-@Table(name = "ratings")
-public class Rating {
+@Table(name = "average_ratings")
+public class AverageRating {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,15 +30,13 @@ public class Rating {
     @OneToOne(mappedBy = "ratingId")
     private Product productId;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(
-            name = "rating_user_list",
-            joinColumns = @JoinColumn(name = "rating_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> userList;
+    @OneToMany(mappedBy = "averageRatingId", cascade = CascadeType.DETACH)
+    private List<IndividualRating> individualRatings;
 
-    public boolean addUser(User user) {
-        return this.userList.add(user);
+    public void setAverageRate() {
+        this.rate = this.individualRatings
+                .stream()
+                .mapToDouble(IndividualRating::getRate)
+                .average().orElse(0);
     }
 }

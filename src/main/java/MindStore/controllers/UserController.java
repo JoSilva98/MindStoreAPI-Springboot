@@ -1,6 +1,10 @@
 package MindStore.controllers;
 
-import MindStore.command.*;
+import MindStore.command.personDto.UserDto;
+import MindStore.command.personDto.UserUpdateDto;
+import MindStore.command.productDto.CategoryDto;
+import MindStore.command.productDto.ProductDto;
+import MindStore.command.productDto.RatingDto;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

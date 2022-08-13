@@ -1,4 +1,4 @@
-package MindStore.command;
+package MindStore.command.personDto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

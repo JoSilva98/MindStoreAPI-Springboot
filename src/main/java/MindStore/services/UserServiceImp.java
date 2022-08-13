@@ -1,6 +1,10 @@
 package MindStore.services;
 
-import MindStore.command.*;
+import MindStore.command.personDto.UserDto;
+import MindStore.command.personDto.UserUpdateDto;
+import MindStore.command.productDto.CategoryDto;
+import MindStore.command.productDto.ProductDto;
+import MindStore.command.productDto.RatingDto;
 import MindStore.config.CheckAuth;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
@@ -10,15 +14,17 @@ import MindStore.exceptions.ConflictException;
 import MindStore.exceptions.NotAllowedValueException;
 import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Person.User;
-import MindStore.persistence.models.Product.Rating;
+import MindStore.persistence.models.Product.IndividualRating;
+import MindStore.persistence.models.Product.AverageRating;
 import MindStore.persistence.repositories.Person.RoleRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.exceptions.NotFoundException;
 import MindStore.persistence.models.Product.Category;
 import MindStore.persistence.models.Product.Product;
 import MindStore.persistence.repositories.Product.CategoryRepository;
+import MindStore.persistence.repositories.Product.IndividualRatingRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
-import MindStore.persistence.repositories.Product.RatingRepository;
+import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +48,8 @@ public class UserServiceImp implements UserServiceI {
     private CategoryRepository categoryRepository;
     private UserRepository userRepository;
     private RoleRepository roleRepository;
-    private RatingRepository ratingRepository;
+    private AverageRatingRepository ratingRepository;
+    private IndividualRatingRepository indRatingRepository;
     private MainConverterI mainConverter;
     private PasswordEncoder encoder;
     private final CheckAuth checkAuth;
@@ -189,30 +195,46 @@ public class UserServiceImp implements UserServiceI {
 
         User user = findUserById(userId, this.userRepository);
         Product product = findProductById(productId, this.productRepository);
-        Rating ratingEntity = product.getRatingId();
+        AverageRating averageRating = product.getRatingId();
 
-        double oldRating = product.getRatingId().getRate();
+        IndividualRating userRating = user.getIndividualRatings()
+                .stream()
+                .filter(rate -> rate.getAverageRatingId().equals(averageRating))
+                .findFirst().orElse(null);
+
         int ratingCount;
-        double newRating;
+        ratingCount = getRatingCount(rating, user, product, averageRating, userRating);
 
-        if (!ratingEntity.addUser(user)) {
-            ratingCount = product.getRatingId().getCount();
-            newRating = (oldRating) + ((rating - oldRating) / ratingCount);
-        } else {
-            ratingCount = product.getRatingId().getCount() + 1;
-            newRating = oldRating + ((rating - oldRating) / ratingCount);
-        }
+        averageRating.setCount(ratingCount);
+        averageRating.setAverageRate();
 
-        //Resolver problema do rating mais tarde
-
-        ratingEntity.setCount(ratingCount);
-        ratingEntity.setRate(newRating);
-
-        this.ratingRepository.save(ratingEntity);
+        this.ratingRepository.save(averageRating);
         this.productRepository.save(product);
         this.userRepository.save(user);
 
-        return this.mainConverter.converter(ratingEntity, RatingDto.class);
+        return this.mainConverter.converter(averageRating, RatingDto.class);
+    }
+
+    private int getRatingCount(int rating, User user, Product product,
+                               AverageRating averageRating, IndividualRating userRating) {
+        int ratingCount;
+        if (userRating == null) {
+            ratingCount = product.getRatingId().getCount() + 1;
+
+            IndividualRating newUserRating = IndividualRating.builder()
+                    .rate(rating)
+                    .userId(user)
+                    .averageRatingId(averageRating)
+                    .build();
+
+            this.indRatingRepository.save(newUserRating);
+        } else {
+            ratingCount = product.getRatingId().getCount();
+
+            userRating.setRate(rating);
+            this.indRatingRepository.save(userRating);
+        }
+        return ratingCount;
     }
 
     @Override

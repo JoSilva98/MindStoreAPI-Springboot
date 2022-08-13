@@ -1,4 +1,4 @@
-package MindStore.command;
+package MindStore.command.productDto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

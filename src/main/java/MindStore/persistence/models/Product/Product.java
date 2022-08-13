@@ -4,9 +4,8 @@ import MindStore.persistence.models.Person.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
-
-//props iguais as da external api para podermos mapear
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +14,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "products")
-@EqualsAndHashCode
+//@EqualsAndHashCode
 public class Product {
 
     @Id
@@ -29,7 +28,6 @@ public class Product {
     @Column(nullable = false)
     private double price;
 
-    //se nao pusermos isto a description n funciona porque o default é menor
     @Column(nullable = false, length = 1000)
     private String description;
 
@@ -48,8 +46,8 @@ public class Product {
 
     //@OnDelete() se o detach n funcionar
     @OneToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "rating_id_fk") //do lado que pusermos o join colum é a table od vai aparecer
-    private Rating ratingId;
+    @JoinColumn(name = "rating_id_fk")
+    private AverageRating ratingId;
 
     public void decreaseStock() {
         this.stock--;

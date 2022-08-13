@@ -1,6 +1,11 @@
 package MindStore.controllers;
 
-import MindStore.command.*;
+import MindStore.command.personDto.AdminDto;
+import MindStore.command.personDto.AdminUpdateDto;
+import MindStore.command.personDto.UserDto;
+import MindStore.command.personDto.UserUpdateDto;
+import MindStore.command.productDto.ProductDto;
+import MindStore.command.productDto.ProductUpdateDto;
 import MindStore.services.AdminServiceI;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;

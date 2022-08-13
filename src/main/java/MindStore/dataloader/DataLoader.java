@@ -7,13 +7,13 @@ import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Person.User;
 import MindStore.persistence.models.Product.Category;
 import MindStore.persistence.models.Product.Product;
-import MindStore.persistence.models.Product.Rating;
+import MindStore.persistence.models.Product.AverageRating;
 import MindStore.persistence.repositories.Person.AdminRepository;
 import MindStore.persistence.repositories.Person.RoleRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
-import MindStore.persistence.repositories.Product.RatingRepository;
+import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -32,7 +32,7 @@ public class DataLoader implements ApplicationRunner {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final MainConverterI mainConverter;
-    private final RatingRepository ratingRepository;
+    private final AverageRatingRepository ratingRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final AdminRepository adminRepository;
@@ -40,7 +40,26 @@ public class DataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        externalApi();
+        //externalApi();
+
+        Category mensClothing = Category.builder()
+                .category("men's clothing")
+                .build();
+
+        Category womensClothing = Category.builder()
+                .category("women's clothing")
+                .build();
+
+        Category jewellery = Category.builder()
+                .category("jewellery")
+                .build();
+
+        Category electronics = Category.builder()
+                .category("electronics")
+                .build();
+
+        List<Category> categories = List.of(mensClothing, womensClothing, jewellery, electronics);
+        this.categoryRepository.saveAll(categories);
 
         Role userRole = Role.builder()
                 .roleType("USER")
@@ -76,30 +95,18 @@ public class DataLoader implements ApplicationRunner {
         this.adminRepository.save(admin);
     }
 
-    /*
-    funçao que usa rest template para ir buscar o array de products que esta na api externa, (getForEntity porque array)
-
-     */
     public void externalApi() {
 
         ResponseEntity<ApiProduct[]> response = this.restTemplate.getForEntity("https://fakestoreapi.com/products", ApiProduct[].class);
         ApiProduct[] products = response.getBody();
 
-        //se nao houver products quer dizer que o vetor nao iniciou e é nulo
         if (products != null) {
             for (ApiProduct product : products) {
-                //converter objetos todos:
-                //passar products e ratings para os objetos que fizemos pra mapear
                 Product productEntity = this.mainConverter.converter(product, Product.class);
-                //porque tambem é um objeto que vem do produto (tb é tabela na DB)
-                Rating ratingEntity = this.mainConverter.converter(product.getRating(), Rating.class);
+                AverageRating ratingEntity = this.mainConverter.converter(product.getRating(), AverageRating.class);
 
-                //para converter categoria (do json) de string para objeto:
-                //scope
                 Category category;
 
-                //findbycategory query do categoryjpa
-                //se n houver categorias no repositorio construimos categoria, se nao vamos buscar a que existe
                 if (this.categoryRepository.findByCategory(product.getCategory()).isEmpty()) {
                     category = Category.builder()
                             .category(product.getCategory())
@@ -108,14 +115,14 @@ public class DataLoader implements ApplicationRunner {
                     this.categoryRepository.save(category);
 
                 } else
-                    category = this.categoryRepository.findByCategory(product.getCategory()).get(); //get para ir buscar valor do optional (como fizemos o if)
+                    category = this.categoryRepository.findByCategory(product.getCategory()).get();
 
-                //temos que guardar antes o rating na DB para podermos associar ao productEntity
                 this.ratingRepository.save(ratingEntity);
-                //associar o rating ao product
+
                 productEntity.setRatingId(ratingEntity);
                 productEntity.setCategory(category);
                 productEntity.setStock(3);
+
                 this.productRepository.save(productEntity);
             }
         }

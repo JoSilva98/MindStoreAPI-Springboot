@@ -1,6 +1,11 @@
 package MindStore.services;
 
-import MindStore.command.*;
+import MindStore.command.personDto.AdminDto;
+import MindStore.command.personDto.AdminUpdateDto;
+import MindStore.command.personDto.UserDto;
+import MindStore.command.personDto.UserUpdateDto;
+import MindStore.command.productDto.ProductDto;
+import MindStore.command.productDto.ProductUpdateDto;
 import MindStore.config.CheckAuth;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
@@ -13,7 +18,7 @@ import MindStore.persistence.models.Person.Admin;
 import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Product.Category;
 import MindStore.persistence.models.Product.Product;
-import MindStore.persistence.models.Product.Rating;
+import MindStore.persistence.models.Product.AverageRating;
 import MindStore.persistence.models.Person.User;
 import MindStore.persistence.repositories.Person.AdminRepository;
 import MindStore.persistence.repositories.Person.PersonRepository;
@@ -21,7 +26,7 @@ import MindStore.persistence.repositories.Person.RoleRepository;
 import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
-import MindStore.persistence.repositories.Product.RatingRepository;
+import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,7 +47,7 @@ public class AdminService implements AdminServiceI {
     private UserRepository userRepository;
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
-    private RatingRepository ratingRepository;
+    private AverageRatingRepository ratingRepository;
     private RoleRepository roleRepository;
     private MainConverterI converter;
     private PasswordEncoder encoder;
@@ -178,7 +183,7 @@ public class AdminService implements AdminServiceI {
                 .findByCategory(productDto.getCategory())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
-        Rating rating = Rating.builder()
+        AverageRating rating = AverageRating.builder()
                 .rate(0)
                 .count(0)
                 .build();

@@ -1,4 +1,4 @@
-package MindStore.command;
+package MindStore.command.productDto;
 
 import MindStore.persistence.models.Product.Product;
 import com.fasterxml.jackson.annotation.JsonProperty;

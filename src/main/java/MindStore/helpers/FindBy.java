@@ -6,13 +6,11 @@ import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Person.User;
 import MindStore.persistence.models.Product.Category;
 import MindStore.persistence.models.Product.Product;
-import MindStore.persistence.models.Product.Rating;
 import MindStore.persistence.repositories.Person.AdminRepository;
 import MindStore.persistence.repositories.Person.RoleRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.persistence.repositories.Product.CategoryRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
-import MindStore.persistence.repositories.Product.RatingRepository;
 
 public class FindBy {
     public static Product findProductById(Long id, ProductRepository productRepository) {
