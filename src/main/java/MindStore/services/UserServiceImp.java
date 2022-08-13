@@ -1,13 +1,13 @@
 package MindStore.services;
 
 import MindStore.command.*;
+import MindStore.config.CheckAuth;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
 import MindStore.enums.ProductFieldsEnum;
 import MindStore.enums.RoleEnum;
 import MindStore.exceptions.ConflictException;
 import MindStore.exceptions.NotAllowedValueException;
-import MindStore.helpers.ValidateParams;
 import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Person.User;
 import MindStore.persistence.models.Product.Rating;
@@ -25,11 +25,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,7 +48,8 @@ public class UserServiceImp implements UserServiceI {
     private RatingRepository ratingRepository;
     private MainConverterI mainConverter;
     private DecimalFormat decimalFormat;
-
+    private PasswordEncoder encoder;
+    private final CheckAuth checkAuth;
 
     @Override
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
@@ -56,7 +57,7 @@ public class UserServiceImp implements UserServiceI {
         validatePages(page, pageSize);
 
         List<Product> products;
-        switch (direction){
+        switch (direction) {
             //enum nosso e no findproducts funçao do java para dar a direção
             case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize)
                     .stream().toList();
@@ -64,22 +65,23 @@ public class UserServiceImp implements UserServiceI {
                     .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
+
         return this.mainConverter.listConverter(products, ProductDto.class);
     }
 
     @Override
-    public List<ProductDto> getProductsByTitle(String title, String direction, String field, int page, int pageSize) {
+    public List<ProductDto> getProductsByTitle(String title, String direction, int page, int pageSize) {
         validatePages(page, pageSize);
 
         List<Product> productsList = this.productRepository.findByTitleLike(title);
         if (productsList.isEmpty()) {
             throw new NotFoundException("No products found with such name");
         }
-        switch (direction){
+        switch (direction) {
             //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC -> productsList = findProducts(Sort.Direction.ASC, field, page, pageSize)
+            case DirectionEnum.ASC -> productsList = findProducts(Sort.Direction.ASC, ProductFieldsEnum.TITLE, page, pageSize)
                     .stream().toList();
-            case DirectionEnum.DESC -> productsList = findProducts(Sort.Direction.DESC, field, page, pageSize)
+            case DirectionEnum.DESC -> productsList = findProducts(Sort.Direction.DESC, ProductFieldsEnum.TITLE, page, pageSize)
                     .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
@@ -87,7 +89,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public List<ProductDto> getProductByCategory(String category, String direction, String field, int page, int pageSize) {
+    public List<ProductDto> getProductByCategory(String category, String direction, int page, int pageSize) {
         Category categoryEntity = this.categoryRepository.findByCategory(category)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
@@ -96,17 +98,18 @@ public class UserServiceImp implements UserServiceI {
             throw new NotFoundException("No products found with that category");
         }
 
-        switch (direction){
+        switch (direction) {
             //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC -> productList = findProducts(Sort.Direction.ASC, field, page, pageSize)
-                    .stream().toList();
-            case DirectionEnum.DESC -> productList = findProducts(Sort.Direction.DESC, field, page, pageSize)
-                    .stream().toList();
+            case DirectionEnum.ASC ->
+                    productList = findProducts(Sort.Direction.ASC, ProductFieldsEnum.CATEGORY, page, pageSize)
+                            .stream().toList();
+            case DirectionEnum.DESC ->
+                    productList = findProducts(Sort.Direction.DESC, ProductFieldsEnum.CATEGORY, page, pageSize)
+                            .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
         return this.mainConverter.listConverter(productList, ProductDto.class);
     }
-
 
     @Override
     public ProductDto getProductById(Long id) {
@@ -125,24 +128,27 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public List<ProductDto> getShoppingCart(Long userId, String direction, String field, int page, int pageSize) {
+    public List<ProductDto> getShoppingCart(Long userId) {
+        this.checkAuth.checkUserId(userId);
+
         User user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         List<Product> productList = user.getShoppingCart();
 
-        switch (direction) {
-            //enum nosso e no findproducts funçao do java para dar a direção
-            case DirectionEnum.ASC -> productList = findProducts(Sort.Direction.ASC, field, page, pageSize)
-                    .stream().toList();
-            case DirectionEnum.DESC -> productList = findProducts(Sort.Direction.DESC, field, page, pageSize)
-                    .stream().toList();
-            default -> throw new NotAllowedValueException("Direction not allowed");
+        return this.mainConverter.listConverter(productList, ProductDto.class);
+    }
 
-        }
-            return productList.stream()
-                    .map(product -> mainConverter.converter(product, ProductDto.class))
-                    .toList();
+    @Override
+    public String getCartTotalPrice(Long userId) {
+        this.checkAuth.checkUserId(userId);
+
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        return user.getShoppingCart().stream()
+                .mapToDouble(Product::getPrice)
+                .sum() + "€";
     }
 
     @Override
@@ -159,6 +165,7 @@ public class UserServiceImp implements UserServiceI {
                 .orElseThrow(() -> new NotFoundException("Role not found"));
 
         userToSave.setRoleId(role);
+        userToSave.setPassword(this.encoder.encode(userToSave.getPassword()));
         this.userRepository.save(userToSave);
 
         return this.mainConverter.converter(userToSave, UserDto.class);
@@ -166,6 +173,7 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public ResponseEntity<String> buyProducts(Long id, int payment) {
+        this.checkAuth.checkUserId(id);
 
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -173,8 +181,8 @@ public class UserServiceImp implements UserServiceI {
         //no caso de 2 users terem no shoping cart ao mesmo tempo e 1 comprar primeiro temos de lançar exceçao
         //para o outro
         user.getShoppingCart()
-                .forEach(product ->{
-                    if(product.getStock() == 0){
+                .forEach(product -> {
+                    if (product.getStock() == 0) {
                         throw new NotFoundException("At least one product out of stock, review your shoppimg cart");
                     }
                 });
@@ -198,10 +206,16 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+        this.checkAuth.checkUserId(id);
+
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         User updatedUser = this.mainConverter.updateConverter(userUpdateDto, user);
+
+        if (userUpdateDto.getPassword() != null)
+            updatedUser.setPassword(this.encoder.encode(userUpdateDto.getPassword()));
+
         this.userRepository.save(updatedUser);
 
         return this.mainConverter.converter(updatedUser, UserDto.class);
@@ -209,6 +223,8 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public RatingDto giveRating(Long userId, Long productId, double rating) {
+        this.checkAuth.checkUserId(userId);
+
         if (rating < 0 || rating > 5) {
             throw new ConflictException("Rating value should be between 0 and 5");
         }
@@ -240,7 +256,6 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> filterByPrice(String direction) {
-
         return switch (direction) {
             case DirectionEnum.ASC -> ascendingDirectionPrice(direction);
             case DirectionEnum.DESC -> descendingDirectionPrice(direction);
@@ -275,13 +290,15 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> addProductToCart(Long userId, Long productId) {
+        this.checkAuth.checkUserId(userId);
+
         User user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Product product = this.productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        if(product.getStock() == 0){
+        if (product.getStock() == 0) {
             throw new NotFoundException("No stock on this product");
         }
 
@@ -293,11 +310,16 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
+        this.checkAuth.checkUserId(userId);
+
         User user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Product product = this.productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        if (!user.getShoppingCart().contains(product))
+            throw new NotFoundException("Product not found on the shopping cart");
 
         user.removeProductFromCart(product);
         this.userRepository.save(user);

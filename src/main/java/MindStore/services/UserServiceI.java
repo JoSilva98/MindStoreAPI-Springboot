@@ -9,15 +9,17 @@ import java.util.List;
 public interface UserServiceI {
     List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize);
 
-    List<ProductDto> getProductsByTitle(String title, String direction, String field, int page, int pageSize);
+    List<ProductDto> getProductsByTitle(String title, String direction, int page, int pageSize);
 
-    List<ProductDto> getProductByCategory(String category, String direction, String field, int page, int pageSize);
+    List<ProductDto> getProductByCategory(String category, String direction, int page, int pageSize);
 
     ProductDto getProductById(Long id);
 
     CategoryDto getCategoryById(int id);
 
-    List<ProductDto> getShoppingCart(Long userId, String direction, String field, int page, int pageSize);
+    List<ProductDto> getShoppingCart(Long userId);
+
+    String getCartTotalPrice(Long userId);
 
     UserDto signUp(UserDto userDto);
 

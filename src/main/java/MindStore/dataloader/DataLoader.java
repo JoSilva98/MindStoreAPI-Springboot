@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,8 +36,7 @@ public class DataLoader implements ApplicationRunner {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final AdminRepository adminRepository;
-
-    //Mudar jewelery para jewellery
+    private final PasswordEncoder encoder;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -57,7 +57,7 @@ public class DataLoader implements ApplicationRunner {
                 .firstName("Joaquim")
                 .lastName("Alberto")
                 .email("quim@mail")
-                .password("pass")
+                .password(this.encoder.encode("password"))
                 .dateOfBirth(LocalDate.of(1973, 2, 23))
                 .address("Rua do Quim, 3800-237")
                 .roleId(userRole)
@@ -69,7 +69,7 @@ public class DataLoader implements ApplicationRunner {
                 .firstName("Ze")
                 .lastName("To")
                 .email("zeto@email.com")
-                .password("ora_esta_bem_entao")
+                .password(this.encoder.encode("ora_esta_bem_entao"))
                 .roleId(adminRole)
                 .build();
 
@@ -115,6 +115,7 @@ public class DataLoader implements ApplicationRunner {
                 //associar o rating ao product
                 productEntity.setRatingId(ratingEntity);
                 productEntity.setCategory(category);
+                productEntity.setStock(3);
                 this.productRepository.save(productEntity);
             }
         }

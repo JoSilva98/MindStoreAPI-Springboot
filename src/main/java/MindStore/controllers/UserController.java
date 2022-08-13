@@ -30,19 +30,17 @@ public class UserController {
     @GetMapping("/products/byname/{title}")
     public List<ProductDto> getProductByTitle(@PathVariable("title") String title,
                                               @RequestParam(value = "direction") String direction,
-                                              @RequestParam(value = "field") String field,
                                               @RequestParam(value = "page") int page,
-                                              @RequestParam(value = "pagesize") int pageSize){
-        return this.userServiceI.getProductsByTitle(title, direction, field, page, pageSize);
+                                              @RequestParam(value = "pagesize") int pageSize) {
+        return this.userServiceI.getProductsByTitle(title, direction, page, pageSize);
     }
 
     @GetMapping("/products/bycategory/{category}")
     public List<ProductDto> getProductByCategory(@PathVariable("category") String category,
                                                  @RequestParam(value = "direction") String direction,
-                                                 @RequestParam(value = "field") String field,
                                                  @RequestParam(value = "page") int page,
-                                                 @RequestParam(value = "pagesize") int pageSize){
-        return this.userServiceI.getProductByCategory(category, direction, field, page, pageSize);
+                                                 @RequestParam(value = "pagesize") int pageSize) {
+        return this.userServiceI.getProductByCategory(category, direction, page, pageSize);
     }
 
     @GetMapping("/products/{id}")
@@ -56,12 +54,13 @@ public class UserController {
     }
 
     @GetMapping("/shoppingcart/{userid}")
-    public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId,
-                                            @RequestParam(value = "direction") String direction,
-                                            @RequestParam(value = "field") String field,
-                                            @RequestParam(value = "page") int page,
-                                            @RequestParam(value = "pagesize") int pageSize){
-        return this.userServiceI.getShoppingCart(userId, direction, field, page, pageSize);
+    public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId) {
+        return this.userServiceI.getShoppingCart(userId);
+    }
+
+    @GetMapping("/shoppingcart/price/{userid}")
+    public String getCartTotalPrice(@PathVariable("userid") Long userId) {
+        return this.userServiceI.getCartTotalPrice(userId);
     }
 
     @PostMapping
@@ -92,7 +91,6 @@ public class UserController {
         return this.userServiceI.buyProducts(id, payment);
     }
 
-
     @PostMapping("/rating")
     public RatingDto giveRating(@RequestParam(value = "userid") Long userId,
                                 @RequestParam(value = "productid") Long productId,
@@ -114,5 +112,4 @@ public class UserController {
                                                   @RequestParam(value = "direction") String direction) {
         return this.userServiceI.filterByRatingOrTitle(field, direction);
     }
-
 }
