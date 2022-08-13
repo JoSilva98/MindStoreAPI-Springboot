@@ -134,9 +134,9 @@ public class UserServiceImp implements UserServiceI {
         switch (direction) {
             //enum nosso e no findproducts funçao do java para dar a direção
             case DirectionEnum.ASC -> productList = findProducts(Sort.Direction.ASC, field, page, pageSize)
-                    .stream().collect(Collectors.toSet());
+                    .stream().toList();
             case DirectionEnum.DESC -> productList = findProducts(Sort.Direction.DESC, field, page, pageSize)
-                    .stream().collect(Collectors.toSet());
+                    .stream().toList();
             default -> throw new NotAllowedValueException("Direction not allowed");
 
         }
