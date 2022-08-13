@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 
-
 public interface UserServiceI {
     List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize);
 
@@ -33,7 +32,6 @@ public interface UserServiceI {
     List<ProductDto> filterByRatingAndAlphabetic(String field, String direction);
 
     List<ProductDto> addProductToCart(Long userId, Long productId);
-    List<ProductDto> removeProductFromCart(Long userId, Long productId);
 
-    ResponseEntity<String> buyProducts(Long id, int payment);
+    List<ProductDto> removeProductFromCart(Long userId, Long productId);
 }
