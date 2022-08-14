@@ -10,14 +10,13 @@ import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
-@CrossOrigin(origins = {"http://192.168.1.66:5500", "http://172.28.32.1:5500", "http://127.0.0.1:5500"})
+
 public class UserController {
     private UserServiceI userServiceI;
 
