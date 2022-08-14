@@ -5,6 +5,8 @@ import MindStore.persistence.models.Product.Product;
 import MindStore.persistence.models.Product.AverageRating;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDate;

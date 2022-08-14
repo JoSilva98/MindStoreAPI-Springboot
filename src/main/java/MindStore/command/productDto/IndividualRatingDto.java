@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
+
 public class IndividualRatingDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private int rate;

@@ -180,6 +180,22 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    public UserDto deleteUser(Long id) {
+        this.checkAuth.checkUserId(id);
+
+        User user = findUserById(id, this.userRepository);
+
+        //ir aos individual ratings para mante-los para a media, senão apaga user e a media mantem-se com user que n esta la
+        user.getIndividualRatings()
+                .forEach(rating -> rating.setUserId(null));
+        List<IndividualRating> userRatings = user.getIndividualRatings();
+
+        this.indRatingRepository.saveAll(userRatings);
+        this.userRepository.delete(user);
+        return this.mainConverter.converter(user, UserDto.class);
+    }
+
+    @Override
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         this.checkAuth.checkUserId(id);
 
@@ -329,6 +345,7 @@ public class UserServiceImp implements UserServiceI {
 
         return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
     }
+
 
     private Page<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
         if (!ProductFieldsEnum.FIELDS.contains(field))

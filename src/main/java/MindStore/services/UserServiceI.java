@@ -42,4 +42,6 @@ public interface UserServiceI {
     List<ProductDto> addProductToCart(Long userId, Long productId);
 
     List<ProductDto> removeProductFromCart(Long userId, Long productId);
+
+    UserDto deleteUser(Long id);
 }

@@ -75,6 +75,12 @@ public class UserController {
     }
     //Done
 
+    @DeleteMapping("/delete/{id}")
+    public UserDto deleteUser(@PathVariable("id") Long id) {
+        return this.userServiceI.deleteUser(id);
+    }
+
+
     @PatchMapping("/{id}")
     public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         return this.userServiceI.updateUser(id, userUpdateDto);
