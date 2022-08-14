@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
+@CrossOrigin
 public class UserController {
     private UserServiceI userServiceI;
 
