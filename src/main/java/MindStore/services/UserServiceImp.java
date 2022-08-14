@@ -3,8 +3,9 @@ package MindStore.services;
 import MindStore.command.personDto.UserDto;
 import MindStore.command.personDto.UserUpdateDto;
 import MindStore.command.productDto.CategoryDto;
+import MindStore.command.productDto.IndividualRatingDto;
 import MindStore.command.productDto.ProductDto;
-import MindStore.command.productDto.RatingDto;
+import MindStore.command.productDto.AverageRatingDto;
 import MindStore.config.CheckAuth;
 import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
@@ -152,23 +153,29 @@ public class UserServiceImp implements UserServiceI {
         this.checkAuth.checkUserId(id);
 
         User user = findUserById(id, this.userRepository);
-        user.getShoppingCart()
-                .forEach(product -> {
-                    if (product.getStock() == 0) {
-                        throw new NotFoundException("At least one product out of stock, review your shoppimg cart");
-                    }
-                });
+
+        List<Product> cart = user.getShoppingCart();
+        cart.forEach(product -> {
+            if (product.getStock() == 0) {
+                throw new NotFoundException("Product " + product.getTitle() + "'s stock is empty");
+            }
+        });
 
         double totalPrice = getCartTotalPrice(id);
 
-        if (totalPrice == 0) throw new NotFoundException("Your shopping cart is empty");
+        if (cart.size() == 0) throw new NotFoundException("Your shopping cart is empty");
         if (payment < totalPrice)
             return new ResponseEntity<>("You don't have enough money", HttpStatus.EXPECTATION_FAILED);
 
-        user.getShoppingCart().forEach(Product::decreaseStock);
+        user.getShoppingCart().forEach(prod -> {
+            if (prod.getStock() == 0)
+                throw new NotFoundException("You requiered more " + prod.getTitle() + " items than are available in the stock");
+            prod.decreaseStock();
+        });
+
+        this.productRepository.saveAll(user.getShoppingCart());
         user.setShoppingCart(new ArrayList<>());
         this.userRepository.save(user);
-
         return new ResponseEntity<>("Payment accepted!", HttpStatus.OK);
     }
 
@@ -187,7 +194,14 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public RatingDto rateProduct(Long userId, Long productId, int rating) {
+    public List<IndividualRatingDto> getRatingList(Long userId) {
+        List<IndividualRating> userRatings = findUserById(userId, this.userRepository)
+                .getIndividualRatings();
+        return this.mainConverter.listConverter(userRatings, IndividualRatingDto.class);
+    }
+
+    @Override
+    public AverageRatingDto rateProduct(Long userId, Long productId, int rating) {
         this.checkAuth.checkUserId(userId);
 
         if (rating < 1 || rating > 5)
@@ -212,7 +226,31 @@ public class UserServiceImp implements UserServiceI {
         this.productRepository.save(product);
         this.userRepository.save(user);
 
-        return this.mainConverter.converter(averageRating, RatingDto.class);
+        return this.mainConverter.converter(averageRating, AverageRatingDto.class);
+    }
+
+    @Override
+    public void deleteRate(Long userId, Long ratingId) {
+        this.checkAuth.checkUserId(userId);
+
+        User user = findUserById(userId, this.userRepository);
+        IndividualRating userRating = findRatingById(ratingId, this.indRatingRepository);
+
+        if (!user.getIndividualRatings().contains(userRating))
+            throw new NotFoundException("Rating not found on user's rating list");
+
+        this.indRatingRepository.delete(userRating);
+
+        AverageRating averageRating = userRating.getAverageRatingId();
+        averageRating.decreaseCount();
+        averageRating.setRate(
+                averageRating.getIndividualRatings()
+                        .stream()
+                        .mapToDouble(IndividualRating::getRate)
+                        .average().orElse(0)
+        );
+
+        this.ratingRepository.save(averageRating);
     }
 
     private int getRatingCount(int rating, User user, Product product,
@@ -223,6 +261,7 @@ public class UserServiceImp implements UserServiceI {
 
             IndividualRating newUserRating = IndividualRating.builder()
                     .rate(rating)
+                    .productTitle(product.getTitle())
                     .userId(user)
                     .averageRatingId(averageRating)
                     .build();
@@ -266,7 +305,7 @@ public class UserServiceImp implements UserServiceI {
         Product product = findProductById(productId, this.productRepository);
 
         if (product.getStock() == 0) {
-            throw new NotFoundException("No stock on this product");
+            throw new NotFoundException("This product is unavailable");
         }
 
         user.addProductToCart(product);

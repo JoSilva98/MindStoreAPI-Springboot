@@ -16,7 +16,7 @@ public class ProductDto {
     private Long id;
 
     @NotEmpty
-    @Size(min = 2, max = 30, message = "Product name should have at least 2 characters")
+    @Size(min = 2, max = 30, message = "Product title should have at least 2 characters")
     private String title;
 
     @NotNull //not null para numeros
@@ -46,5 +46,5 @@ public class ProductDto {
 //    private int ratingId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private RatingDto rating;
+    private AverageRatingDto rating;
 }

@@ -25,11 +25,13 @@ public class IndividualRating {
     @Column(nullable = false)
     private int rate;
 
+    @Column(nullable = false)
+    private String productTitle;
+
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "average_rating_id_fk")
     private AverageRating averageRatingId;
 
-    //@OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id_fk")
     private User userId;

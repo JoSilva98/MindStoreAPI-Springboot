@@ -35,5 +35,7 @@ public interface AdminServiceI {
 
     UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
 
-    void deleteProduct(String title);
+    void deleteProduct(Long id);
+
+    void deleteProductByTitle(String title);
 }

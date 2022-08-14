@@ -107,9 +107,15 @@ public class AdminController {
     }
     //Done
 
-    @DeleteMapping("products/{title}")
+    @DeleteMapping("products/{id}")
+    public void deleteProduct(@PathVariable("id") Long id) {
+        this.adminService.deleteProduct(id);
+    }
+    //Done
+
+    @DeleteMapping("products/title/{title}")
     public void deleteProduct(@PathVariable("title") String title) {
-        this.adminService.deleteProduct(title);
+        this.adminService.deleteProductByTitle(title);
     }
     //Done
 }

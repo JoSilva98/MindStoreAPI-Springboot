@@ -4,7 +4,6 @@ import MindStore.persistence.models.Person.User;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -14,7 +13,6 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "products")
-//@EqualsAndHashCode
 public class Product {
 
     @Id
@@ -44,8 +42,8 @@ public class Product {
     @ManyToMany(mappedBy = "shoppingCart")
     private Set<User> users;
 
-    //@OnDelete() se o detach n funcionar
-    @OneToOne(cascade = CascadeType.REMOVE)
+    //@OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "rating_id_fk")
     private AverageRating ratingId;
 

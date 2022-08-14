@@ -3,8 +3,9 @@ package MindStore.services;
 import MindStore.command.personDto.UserDto;
 import MindStore.command.personDto.UserUpdateDto;
 import MindStore.command.productDto.CategoryDto;
+import MindStore.command.productDto.IndividualRatingDto;
 import MindStore.command.productDto.ProductDto;
-import MindStore.command.productDto.RatingDto;
+import MindStore.command.productDto.AverageRatingDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -30,7 +31,11 @@ public interface UserServiceI {
 
     UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
 
-    RatingDto rateProduct(Long userId, Long productId, int rating);
+    List<IndividualRatingDto> getRatingList(Long userId);
+
+    AverageRatingDto rateProduct(Long userId, Long productId, int rating);
+
+    void deleteRate(Long userId, Long ratingId);
 
     List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice);
 

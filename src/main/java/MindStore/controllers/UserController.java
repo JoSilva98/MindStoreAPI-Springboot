@@ -3,8 +3,9 @@ package MindStore.controllers;
 import MindStore.command.personDto.UserDto;
 import MindStore.command.personDto.UserUpdateDto;
 import MindStore.command.productDto.CategoryDto;
+import MindStore.command.productDto.IndividualRatingDto;
 import MindStore.command.productDto.ProductDto;
-import MindStore.command.productDto.RatingDto;
+import MindStore.command.productDto.AverageRatingDto;
 import MindStore.services.UserServiceI;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -101,13 +102,25 @@ public class UserController {
     }
     //Done
 
+    @GetMapping("/rating/{userid}")
+    public List<IndividualRatingDto> getRatingList(@PathVariable("userid") Long userId) {
+        return this.userServiceI.getRatingList(userId);
+    }
+
     @PostMapping("/rating")
-    public RatingDto rateProduct(@RequestParam(value = "userid") Long userId,
-                                 @RequestParam(value = "productid") Long productId,
-                                 @RequestParam(value = "rating") int rating) {
+    public AverageRatingDto rateProduct(@RequestParam(value = "userid") Long userId,
+                                        @RequestParam(value = "productid") Long productId,
+                                        @RequestParam(value = "rating") int rating) {
         return this.userServiceI.rateProduct(userId, productId, rating);
     }
-    //To Do
+    //Done
+
+    @DeleteMapping("/rating")
+    public void deleteRate(@RequestParam(value = "userid") Long userId,
+                           @RequestParam(value = "ratingid") Long ratingId) {
+        this.userServiceI.deleteRate(userId, ratingId);
+    }
+    //Done
 
     @GetMapping("/price")
     public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction,

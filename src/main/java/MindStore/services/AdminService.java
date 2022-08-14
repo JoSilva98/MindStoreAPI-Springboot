@@ -274,7 +274,14 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    public void deleteProduct(String title) {
+    public void deleteProduct(Long id) {
+        Product product = findProductById(id, this.productRepository);
+        this.productRepository.delete(product);
+        this.ratingRepository.delete(product.getRatingId());
+    }
+
+    @Override
+    public void deleteProductByTitle(String title) {
         Product product = this.productRepository.findByTitle(title)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
