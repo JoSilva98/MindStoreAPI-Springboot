@@ -11,8 +11,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM users " +
-            "WHERE users.first_name LIKE %:name% " +
-            "OR users.last_name LIKE %:name%", nativeQuery = true)
+            "WHERE UPPER(users.first_name) LIKE %:name% " +
+            "OR UPPER(users.last_name) LIKE %:name%", nativeQuery = true)
     List<User> findAllByName(String name);
 
     Optional<User> findByEmail(String email);

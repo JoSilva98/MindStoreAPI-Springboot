@@ -57,7 +57,6 @@ public class UserServiceImp implements UserServiceI {
     private final CheckAuth checkAuth;
 
     @Override
-    //@Cacheable(value = "products", key = "#field")
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
         System.out.println("Getting products from DB");
 
@@ -94,7 +93,6 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    //Nao faz sentido ter cache porque pode estar sempre a variar o preço
     public List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
 
         validatePages(page, pageSize);
@@ -116,7 +114,6 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    //@Cacheable(value = "products", key = "#title")
     public List<ProductDto> getProductsByTitle(String title, int page, int pageSize) {
         System.out.println("Getting products by title from DB");
 
@@ -132,7 +129,6 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    //@Cacheable(value = "products", key = "#category")
     public List<ProductDto> getProductByCategory(String category, int page, int pageSize) {
         System.out.println("Fetching products by Category to the DB");
 
@@ -184,8 +180,6 @@ public class UserServiceImp implements UserServiceI {
     @Override
     @Cacheable(value = "shoppingcart", key = "#userId")
     public List<ProductDto> getShoppingCart(Long userId) {
-        System.out.println("Fetching shopping cart from the DB");
-
         this.checkAuth.checkUserId(userId);
 
         List<Product> productList = findUserById(userId, this.userRepository).getShoppingCart();
@@ -193,7 +187,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice", "users" }, allEntries = true)
+    @CacheEvict(value = {"products", "shoppingcart", "shoppingcartprice", "users"}, allEntries = true)
     public List<ProductDto> addProductToCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
@@ -210,7 +204,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice", "users" }, allEntries = true)
+    @CacheEvict(value = {"products", "shoppingcart", "shoppingcartprice", "users"}, allEntries = true)
     public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
@@ -227,7 +221,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice" }, allEntries = true)
+    @CacheEvict(value = {"products", "shoppingcart", "shoppingcartprice", "users"}, allEntries = true)
     public ResponseEntity<String> buyProducts(Long id, int payment) {
         this.checkAuth.checkUserId(id);
 
@@ -273,7 +267,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "users" }, allEntries = true)
+    @CacheEvict(value = {"users", "average_ratings", "individual_ratings", "products"}, allEntries = true)
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         this.checkAuth.checkUserId(id);
 
@@ -288,7 +282,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "users" }, allEntries = true)
+    @CacheEvict(value = {"users", "ratings", "products"}, allEntries = true)
     public void deleteUser(Long id) {
         this.checkAuth.checkUserId(id);
         User user = findUserById(id, this.userRepository);
@@ -312,7 +306,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "ratings", "shoppingcart" }, allEntries = true)
+    @CacheEvict(value = {"products", "ratings", "shoppingcart", "ratings"}, allEntries = true)
     public AverageRatingDto rateProduct(Long userId, Long productId, int rating) {
         this.checkAuth.checkUserId(userId);
 
@@ -365,7 +359,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "ratings", "shoppingcart" }, allEntries = true)
+    @CacheEvict(value = {"products", "ratings", "shoppingcart", "average_ratings", "individual_ratings"}, allEntries = true)
     public void deleteRate(Long userId, Long ratingId) {
         this.checkAuth.checkUserId(userId);
 
@@ -390,7 +384,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "users" }, allEntries = true)
+    @CacheEvict(value = {"users"}, allEntries = true)
     public UserDto signUp(UserDto userDto) {
         this.userRepository.findByEmail(userDto.getEmail())
                 .ifPresent((student) -> {

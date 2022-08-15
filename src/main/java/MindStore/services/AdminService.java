@@ -37,6 +37,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import static MindStore.helpers.FindBy.*;
 import static MindStore.helpers.ValidateParams.validatePages;
@@ -167,7 +169,7 @@ public class AdminService implements AdminServiceI {
     public List<UserDto> getUsersByName(String name) {
         System.out.println("Fetching user by name from the DB");
 
-        List<User> user = this.userRepository.findAllByName(name);
+        List<User> user = this.userRepository.findAllByName(name.toUpperCase());
         if (user.isEmpty()) throw new NotFoundException("User not found");
         return this.converter.listConverter(user, UserDto.class);
     }
@@ -307,18 +309,29 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products" }, allEntries = true)
+    @CacheEvict(value = { "products", "shoppingcart", "ratings" }, allEntries = true)
     public void deleteProduct(Long id) {
         Product product = findProductById(id, this.productRepository);
-        product.getUsers()
-                .forEach(user -> user.removeProductFromCart(product));
 
+        Set<User> users = product.getUsers();
+
+        users.forEach(user -> {
+            List<Product> cart = user.getShoppingCart();
+            for (int i = 0; i < cart.size(); i++) {
+                if (cart.get(i).getTitle().equals(product.getTitle())) {
+                    user.removeProductFromCart(product);
+                    i--;
+                }
+            }
+        });
+
+        this.userRepository.saveAll(users);
         this.productRepository.delete(product);
         this.ratingRepository.delete(product.getRatingId());
     }
 
     @Override
-    @CacheEvict(value = { "products" }, allEntries = true)
+    @CacheEvict(value = { "products", "users", "average_ratings", "individual_ratings" }, allEntries = true)
     public void deleteProductByTitle(String title) {
         Product product = this.productRepository.findByTitle(title)
                 .orElseThrow(() -> new NotFoundException("Product not found"));

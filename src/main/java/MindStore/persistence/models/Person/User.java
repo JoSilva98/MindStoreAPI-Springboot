@@ -46,4 +46,8 @@ public class User extends Person {
     public void removeProductFromCart(Product product) {
         this.shoppingCart.remove(product);
     }
+
+    public void removeProductById(int id) {
+        this.shoppingCart.remove(id);
+    }
 }
