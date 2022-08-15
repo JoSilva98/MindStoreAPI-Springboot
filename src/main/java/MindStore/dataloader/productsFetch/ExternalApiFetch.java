@@ -35,7 +35,7 @@ public class ExternalApiFetch {
                                 .category(product.getCategory())
                                 .build();
 
-                        categoryRepository.save(category);
+                        categoryRepository.saveAndFlush(category);
                     } else
                         category = categoryRepository.findByCategory(product.getCategory()).get();
 
@@ -60,9 +60,9 @@ public class ExternalApiFetch {
                             .build();
 
                     if (avRatingRepository.findByProductTitle(productEntity.getTitle()).isEmpty()) {
-                        avRatingRepository.save(averageRating);
+                        avRatingRepository.saveAndFlush(averageRating);
                         userRatings.forEach(x -> x.setAverageRatingId(averageRating));
-                        indRatingRepository.saveAll(userRatings);
+                        indRatingRepository.saveAllAndFlush(userRatings);
                     }
 
                     if (productRepository.findByTitle(productEntity.getTitle()).isEmpty()) {
@@ -70,7 +70,7 @@ public class ExternalApiFetch {
                         productEntity.setCategory(category);
                         productEntity.setStock((int) (Math.random() * 15) + 2);
 
-                        productRepository.save(productEntity);
+                        productRepository.saveAndFlush(productEntity);
                     }
                 }
             }

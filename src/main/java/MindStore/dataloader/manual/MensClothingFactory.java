@@ -53,9 +53,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating1);
+            avRatingRepository.saveAndFlush(averageRating1);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating1));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -97,9 +97,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating2);
+            avRatingRepository.saveAndFlush(averageRating2);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating2));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -141,9 +141,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating3);
+            avRatingRepository.saveAndFlush(averageRating3);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating3));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -184,9 +184,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating4);
+            avRatingRepository.saveAndFlush(averageRating4);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating4));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -225,9 +225,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating5);
+            avRatingRepository.saveAndFlush(averageRating5);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating5));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -268,9 +268,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating6);
+            avRatingRepository.saveAndFlush(averageRating6);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating6));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -312,9 +312,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating7);
+            avRatingRepository.saveAndFlush(averageRating7);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating7));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -355,9 +355,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating8);
+            avRatingRepository.saveAndFlush(averageRating8);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating8));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -398,9 +398,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating9);
+            avRatingRepository.saveAndFlush(averageRating9);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating9));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         //-----------------------------
@@ -441,9 +441,9 @@ public class MensClothingFactory {
         products.add(product);
 
         if (avRatingRepository.findByProductTitle(product.getTitle()).isEmpty()) {
-            avRatingRepository.save(averageRating10);
+            avRatingRepository.saveAndFlush(averageRating10);
             userRatings.forEach(x -> x.setAverageRatingId(averageRating10));
-            indRatingRepository.saveAll(userRatings);
+            indRatingRepository.saveAllAndFlush(userRatings);
         }
 
         return products;
