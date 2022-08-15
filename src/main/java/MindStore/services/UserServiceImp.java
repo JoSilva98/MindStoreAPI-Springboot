@@ -145,6 +145,8 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public UserDto getUserById(Long id) {
+        this.checkAuth.checkUserId(id);
+
         User user = findUserById(id, this.userRepository);
         return this.mainConverter.converter(user, UserDto.class);
     }
