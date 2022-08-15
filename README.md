@@ -17,7 +17,7 @@ Can be deployed in heroku or locally (by switching NOTapplication.yml to applica
 **IMPLEMENTATIONS**
 
 - Model Relationships
-- Spring Security (Authentication/Authorization)
+- Spring Security with JWT (Authentication/Authorization)
 - External API (powered by Fake Store API)
 - Swagger
 - Postman Collection
@@ -37,7 +37,7 @@ Can be deployed in heroku or locally (by switching NOTapplication.yml to applica
 - Exceptions: were exceptions from all over the code are handled;
 - Helpers: contains some helper functions;
 - Persistence: stores the entities and their respective repositories;
-- Security: security (authentication and authorization) implemented with JWT token;
+- Security: security (authentication and authorization) implemented with JWT;
 - Services: contains services for each entity;
 
 ***
