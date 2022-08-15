@@ -97,7 +97,6 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     //Nao faz sentido ter cache porque pode estar sempre a variar o preço
-    //@Cacheable(key = "#minPrice", value = "products")
     public List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
 
         validatePages(page, pageSize);
@@ -196,6 +195,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice" }, allEntries = true)
     public List<ProductDto> addProductToCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
@@ -212,6 +212,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice" }, allEntries = true)
     public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
@@ -228,6 +229,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice" }, allEntries = true)
     public ResponseEntity<String> buyProducts(Long id, int payment) {
         this.checkAuth.checkUserId(id);
 

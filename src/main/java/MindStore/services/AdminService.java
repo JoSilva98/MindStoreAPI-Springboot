@@ -29,6 +29,8 @@ import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,7 +56,10 @@ public class AdminService implements AdminServiceI {
     private final CheckAuth checkAuth;
 
     @Override
+    @Cacheable(value = "products", key = "#field")
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
+        System.out.println("Getting products from DB");
+
         validatePages(page, pageSize);
 
         List<Product> products;
@@ -68,6 +73,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    //Nao faz sentido ter cache porque pode estar sempre a variar o preço
     public List<ProductDto> getAllProductsByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
         validatePages(page, pageSize);
 
@@ -107,20 +113,29 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#id")
     public ProductDto getProductById(Long id) {
+        System.out.println("Fetching product from the DB");
+
         Product product = findProductById(id, this.productRepository);
         return this.converter.converter(product, ProductDto.class);
     }
 
     @Override
+    @Cacheable(value = "products", key = "#title")
     public List<ProductDto> getProductsByName(String title) {
+        System.out.println("Fetching product by name from the DB");
+
         List<Product> products = this.productRepository.findByTitleLike(title);
         if (products.isEmpty()) throw new NotFoundException("Product not found");
         return this.converter.listConverter(products, ProductDto.class);
     }
 
     @Override
+    @Cacheable(value = "users", key = "#field")
     public List<UserDto> getAllUsers(String direction, String field, int page, int pageSize) {
+        System.out.println("Fetching all users from the DB");
+
         validatePages(page, pageSize);
 
         if (!UserFieldsEnum.FIELDS.contains(field))
@@ -144,13 +159,19 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#id")
     public UserDto getUserById(Long id) {
+        System.out.println("Fetching user from the DB");
+
         User user = findUserById(id, this.userRepository);
         return this.converter.converter(user, UserDto.class);
     }
 
     @Override
+    @Cacheable(value = "users", key = "#name")
     public List<UserDto> getUsersByName(String name) {
+        System.out.println("Fetching user by name from the DB");
+
         List<User> user = this.userRepository.findAllByName(name);
         if (user.isEmpty()) throw new NotFoundException("User not found");
         return this.converter.listConverter(user, UserDto.class);
@@ -175,6 +196,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products" }, allEntries = true)
     public ProductDto addProduct(ProductDto productDto) {
         this.productRepository
                 .findByTitle(productDto.getTitle())
@@ -203,6 +225,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "users" }, allEntries = true)
     public UserDto addUser(UserDto userDto) {
         this.userRepository.findByEmail(userDto.getEmail())
                 .ifPresent(x -> {
@@ -242,6 +265,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products" }, allEntries = true)
     public ProductDto updateProduct(Long id, ProductUpdateDto productUpdateDto) {
         Product product = findProductById(id, this.productRepository);
         String title = product.getTitle();
@@ -266,6 +290,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "users" }, allEntries = true)
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         User user = findUserById(id, this.userRepository);
 
@@ -285,6 +310,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products" }, allEntries = true)
     public void deleteProduct(Long id) {
         Product product = findProductById(id, this.productRepository);
         product.getUsers()
@@ -295,6 +321,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products" }, allEntries = true)
     public void deleteProductByTitle(String title) {
         Product product = this.productRepository.findByTitle(title)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
