@@ -18,3 +18,4 @@ spring:
     username: user
     password: password
     driverClassName: org.postgresql.Driver
+    #fgdhm
