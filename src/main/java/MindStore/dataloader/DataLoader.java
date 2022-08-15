@@ -1,116 +1,116 @@
-package MindStore.dataloader;
-
-import MindStore.converters.MainConverterI;
-import MindStore.persistence.models.Person.Role;
-import MindStore.persistence.models.Person.User;
-import MindStore.persistence.models.Product.Category;
-import MindStore.persistence.models.Product.Product;
-import MindStore.persistence.repositories.Person.AdminRepository;
-import MindStore.persistence.repositories.Person.RoleRepository;
-import MindStore.persistence.repositories.Person.UserRepository;
-import MindStore.persistence.repositories.Product.CategoryRepository;
-import MindStore.persistence.repositories.Product.IndividualRatingRepository;
-import MindStore.persistence.repositories.Product.ProductRepository;
-import MindStore.persistence.repositories.Product.AverageRatingRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
-
-import static MindStore.dataloader.manual.AdminsFactory.generateAdmins;
-import static MindStore.dataloader.manual.MensClothingFactory.manClothingGenarator;
-import static MindStore.dataloader.manual.UsersFactory.generateUsers;
-import static MindStore.dataloader.manual.WomensClothingFactory.womanClothingGenerator;
-import static MindStore.dataloader.productsFetch.ExternalApiFetch.externalApi;
-
-@RequiredArgsConstructor
-@Component
-public class DataLoader implements ApplicationRunner {
-    private final RestTemplate restTemplate;
-    private final CategoryRepository categoryRepository;
-    private final ProductRepository productRepository;
-    private final MainConverterI mainConverter;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final AdminRepository adminRepository;
-    private final AverageRatingRepository avRatingRepository;
-    private final IndividualRatingRepository indRatingRepository;
-    private final PasswordEncoder encoder;
-
-    @Override
-    public void run(ApplicationArguments args) {
-        try {
-            //Roles
-            Role userRole = Role.builder()
-                    .roleType("USER")
-                    .build();
-
-            Role adminRole = Role.builder()
-                    .roleType("ADMIN")
-                    .build();
-
-            List.of(userRole, adminRole)
-                    .forEach(role -> {
-                        if (this.roleRepository.findByRoleType(role.getRoleType()).isEmpty())
-                            this.roleRepository.save(role);
-                    });
-
-            //Admins
-            generateAdmins(adminRole, encoder)
-                    .forEach(admin -> {
-                        if (this.adminRepository.findByEmail(admin.getEmail()).isEmpty())
-                            this.adminRepository.save(admin);
-                    });
-
-            //Users
-            List<User> users = generateUsers(userRole, encoder);
-
-            users.forEach(user -> {
-                if (this.userRepository.findByEmail(user.getEmail()).isEmpty())
-                    this.userRepository.save(user);
-            });
-
-            //Categories
-            Category mensClothing = Category.builder()
-                    .category("men's clothing")
-                    .build();
-
-            Category womensClothing = Category.builder()
-                    .category("women's clothing")
-                    .build();
-
-            List.of(mensClothing, womensClothing)
-                    .forEach(category -> {
-                        if (this.categoryRepository.findByCategory(category.getCategory()).isEmpty())
-                            this.categoryRepository.save(category);
-                    });
-
-            //Ratings
-            List<Product> mensClotingList = manClothingGenarator(users, mensClothing,
-                    avRatingRepository, indRatingRepository);
-
-            mensClotingList.forEach(prod -> {
-                if (this.productRepository.findByTitle(prod.getTitle()).isEmpty())
-                    this.productRepository.save(prod);
-            });
-
-            List<Product> womensClothingList = womanClothingGenerator(users, womensClothing,
-                    avRatingRepository, indRatingRepository);
-
-            womensClothingList.forEach(prod -> {
-                if (this.productRepository.findByTitle(prod.getTitle()).isEmpty())
-                    this.productRepository.save(prod);
-            });
-
-            //External API
-            externalApi(users, restTemplate, mainConverter, categoryRepository,
-                    avRatingRepository, indRatingRepository, productRepository);
-        } catch (Exception ignored) {
-
-        }
-    }
-}
+//package MindStore.dataloader;
+//
+//import MindStore.converters.MainConverterI;
+//import MindStore.persistence.models.Person.Role;
+//import MindStore.persistence.models.Person.User;
+//import MindStore.persistence.models.Product.Category;
+//import MindStore.persistence.models.Product.Product;
+//import MindStore.persistence.repositories.Person.AdminRepository;
+//import MindStore.persistence.repositories.Person.RoleRepository;
+//import MindStore.persistence.repositories.Person.UserRepository;
+//import MindStore.persistence.repositories.Product.CategoryRepository;
+//import MindStore.persistence.repositories.Product.IndividualRatingRepository;
+//import MindStore.persistence.repositories.Product.ProductRepository;
+//import MindStore.persistence.repositories.Product.AverageRatingRepository;
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.boot.ApplicationArguments;
+//import org.springframework.boot.ApplicationRunner;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.stereotype.Component;
+//import org.springframework.web.client.RestTemplate;
+//
+//import java.util.List;
+//
+//import static MindStore.dataloader.manual.AdminsFactory.generateAdmins;
+//import static MindStore.dataloader.manual.MensClothingFactory.manClothingGenarator;
+//import static MindStore.dataloader.manual.UsersFactory.generateUsers;
+//import static MindStore.dataloader.manual.WomensClothingFactory.womanClothingGenerator;
+//import static MindStore.dataloader.productsFetch.ExternalApiFetch.externalApi;
+//
+//@RequiredArgsConstructor
+//@Component
+//public class DataLoader implements ApplicationRunner {
+//    private final RestTemplate restTemplate;
+//    private final CategoryRepository categoryRepository;
+//    private final ProductRepository productRepository;
+//    private final MainConverterI mainConverter;
+//    private final UserRepository userRepository;
+//    private final RoleRepository roleRepository;
+//    private final AdminRepository adminRepository;
+//    private final AverageRatingRepository avRatingRepository;
+//    private final IndividualRatingRepository indRatingRepository;
+//    private final PasswordEncoder encoder;
+//
+//    @Override
+//    public void run(ApplicationArguments args) {
+//        try {
+//            //Roles
+//            Role userRole = Role.builder()
+//                    .roleType("USER")
+//                    .build();
+//
+//            Role adminRole = Role.builder()
+//                    .roleType("ADMIN")
+//                    .build();
+//
+//            List.of(userRole, adminRole)
+//                    .forEach(role -> {
+//                        if (this.roleRepository.findByRoleType(role.getRoleType()).isEmpty())
+//                            this.roleRepository.save(role);
+//                    });
+//
+//            //Admins
+//            generateAdmins(adminRole, encoder)
+//                    .forEach(admin -> {
+//                        if (this.adminRepository.findByEmail(admin.getEmail()).isEmpty())
+//                            this.adminRepository.save(admin);
+//                    });
+//
+//            //Users
+//            List<User> users = generateUsers(userRole, encoder);
+//
+//            users.forEach(user -> {
+//                if (this.userRepository.findByEmail(user.getEmail()).isEmpty())
+//                    this.userRepository.save(user);
+//            });
+//
+//            //Categories
+//            Category mensClothing = Category.builder()
+//                    .category("men's clothing")
+//                    .build();
+//
+//            Category womensClothing = Category.builder()
+//                    .category("women's clothing")
+//                    .build();
+//
+//            List.of(mensClothing, womensClothing)
+//                    .forEach(category -> {
+//                        if (this.categoryRepository.findByCategory(category.getCategory()).isEmpty())
+//                            this.categoryRepository.save(category);
+//                    });
+//
+//            //Ratings
+//            List<Product> mensClotingList = manClothingGenarator(users, mensClothing,
+//                    avRatingRepository, indRatingRepository);
+//
+//            mensClotingList.forEach(prod -> {
+//                if (this.productRepository.findByTitle(prod.getTitle()).isEmpty())
+//                    this.productRepository.save(prod);
+//            });
+//
+//            List<Product> womensClothingList = womanClothingGenerator(users, womensClothing,
+//                    avRatingRepository, indRatingRepository);
+//
+//            womensClothingList.forEach(prod -> {
+//                if (this.productRepository.findByTitle(prod.getTitle()).isEmpty())
+//                    this.productRepository.save(prod);
+//            });
+//
+//            //External API
+//            externalApi(users, restTemplate, mainConverter, categoryRepository,
+//                    avRatingRepository, indRatingRepository, productRepository);
+//        } catch (Exception ignored) {
+//
+//        }
+//    }
+//}
