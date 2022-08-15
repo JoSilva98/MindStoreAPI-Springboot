@@ -82,5 +82,6 @@ Path should be specific to localhost, or in case of heroku usage: https://mindsh
 - Update user -> PATCH Path + /api/v1/users/{id} + body in Json format
 - Add products to cart -> PATCH Path + /api/v1/addtocart?{userid}&{productid}
 - Remove products from cart -> PATCH Path + /api/v1/users/removefromcart?{userid}&{productid}
+- Remove all products from cart -> PATCH Path + /api/v1/users/clearcart/{userid}
 - Delete user -> DELETE Path + /api/v1/users/delete/{id}
 - Delete product -> DELETE Path + /api/v1/users/rating?{userid}&{ratingid}
