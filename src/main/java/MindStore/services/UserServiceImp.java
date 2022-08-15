@@ -27,10 +27,8 @@ import MindStore.persistence.repositories.Product.IndividualRatingRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -59,7 +57,7 @@ public class UserServiceImp implements UserServiceI {
     private final CheckAuth checkAuth;
 
     @Override
-    @Cacheable(value = "products", key = "#field")
+    //@Cacheable(value = "products", key = "#field")
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
         System.out.println("Getting products from DB");
 
