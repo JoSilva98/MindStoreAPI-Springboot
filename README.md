@@ -1,20 +1,20 @@
 # MINDSTORE API - SpringBoot
 
 
-**SUMMARY**
+**SUMMARY:**
 
 E-commerce type backend Api created with the purpose of giving its users the ability to search, favorite, add to cart
 and buy desired products, ranging from clothing to jewelry. Created with the purpose of being complemented with React at
 the frontend level.
 
 
-**REQUIREMENTS FOR SETUP**
+**REQUIREMENTS FOR SETUP:**
 
 To run the program, download 63 files and compile in IDE or using javac in terminal. 
 Can be deployed in heroku or locally (by switching NOTapplication.yml to application.yml, and vice versa).
 
 ***
-**IMPLEMENTATIONS**
+**IMPLEMENTATIONS:**
 
 - Model Relationships
 - Spring Security with JWT (Authentication/Authorization)
