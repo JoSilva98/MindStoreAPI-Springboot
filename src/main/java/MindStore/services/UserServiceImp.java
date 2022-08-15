@@ -27,6 +27,10 @@ import MindStore.persistence.repositories.Product.IndividualRatingRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.AllArgsConstructor;
+import lombok.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -55,7 +59,10 @@ public class UserServiceImp implements UserServiceI {
     private final CheckAuth checkAuth;
 
     @Override
+    @Cacheable(value = "products", key = "#field")
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
+        System.out.println("Getting products from DB");
+
         validatePages(page, pageSize);
 
         List<Product> products;
@@ -69,6 +76,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     private List<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
+
         if (!ProductFieldsEnum.FIELDS.contains(field))
             throw new NotFoundException("Field not found");
 
@@ -88,7 +96,10 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    //Nao faz sentido ter cache porque pode estar sempre a variar o preço
+    //@Cacheable(key = "#minPrice", value = "products")
     public List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
+
         validatePages(page, pageSize);
 
         if (minPrice < 0 || maxPrice > 5000)
@@ -108,7 +119,10 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#title")
     public List<ProductDto> getProductsByTitle(String title, int page, int pageSize) {
+        System.out.println("Getting products by title from DB");
+
         validatePages(page, pageSize);
 
         int offset = (page - 1) * pageSize;
@@ -121,7 +135,10 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#category")
     public List<ProductDto> getProductByCategory(String category, int page, int pageSize) {
+        System.out.println("Fetching products by Category to the DB");
+
         validatePages(page, pageSize);
 
         Category categoryEntity = this.categoryRepository.findByCategory(category)
@@ -137,14 +154,21 @@ public class UserServiceImp implements UserServiceI {
         return this.mainConverter.listConverter(productList, ProductDto.class);
     }
 
+
     @Override
+    @Cacheable(value = "products", key = "#id")
     public ProductDto getProductById(Long id) {
+        System.out.println("Fetching product from the DB");
+
         Product product = findProductById(id, this.productRepository);
         return this.mainConverter.converter(product, ProductDto.class);
     }
 
     @Override
+    @Cacheable(value = "users", key = "#id")
     public UserDto getUserById(Long id) {
+        System.out.println("Fetching user from the DB");
+
         this.checkAuth.checkUserId(id);
 
         User user = findUserById(id, this.userRepository);
@@ -152,13 +176,19 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @Cacheable(value = "categories", key = "#id")
     public CategoryDto getCategoryById(int id) {
+        System.out.println("Fetching category from the DB");
+
         Category category = findCategoryById(id, this.categoryRepository);
         return this.mainConverter.converter(category, CategoryDto.class);
     }
 
     @Override
+    @Cacheable(value = "shoppingcart", key = "#userId")
     public List<ProductDto> getShoppingCart(Long userId) {
+        System.out.println("Fetching shopping cart from the DB");
+
         this.checkAuth.checkUserId(userId);
 
         List<Product> productList = findUserById(userId, this.userRepository).getShoppingCart();
@@ -229,7 +259,10 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @Cacheable(value = "shoppingcartprice", key = "#userId")
     public Double getCartTotalPrice(Long userId) {
+        System.out.println("Fetching shopping cart price from the DB");
+
         this.checkAuth.checkUserId(userId);
 
         User user = findUserById(userId, this.userRepository);
@@ -240,6 +273,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "users" }, allEntries = true)
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         this.checkAuth.checkUserId(id);
 
@@ -254,6 +288,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "users" }, allEntries = true)
     public void deleteUser(Long id) {
         this.checkAuth.checkUserId(id);
         User user = findUserById(id, this.userRepository);
@@ -267,13 +302,20 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @Cacheable(value = "ratings", key = "#userId")
     public List<IndividualRatingDto> getRatingList(Long userId) {
+        System.out.println("Fetching ratings from the DB");
+
         List<IndividualRating> userRatings = findUserById(userId, this.userRepository)
                 .getIndividualRatings();
         return this.mainConverter.listConverter(userRatings, IndividualRatingDto.class);
     }
 
     @Override
+//    @Caching(evict = {
+//            @CacheEvict(value = "products", key = "#field")
+//    })
+    @CacheEvict(value = { "products", "ratings", "shoppingcart" }, allEntries = true)
     public AverageRatingDto rateProduct(Long userId, Long productId, int rating) {
         this.checkAuth.checkUserId(userId);
 
@@ -326,6 +368,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "products", "ratings", "shoppingcart" }, allEntries = true)
     public void deleteRate(Long userId, Long ratingId) {
         this.checkAuth.checkUserId(userId);
 
@@ -349,7 +392,7 @@ public class UserServiceImp implements UserServiceI {
         this.ratingRepository.save(averageRating);
     }
 
-    @Override
+    @Override //nao ha evicts aqui, cada user so se pode ir bucar pelo proprio id
     public UserDto signUp(UserDto userDto) {
         this.userRepository.findByEmail(userDto.getEmail())
                 .ifPresent((student) -> {
@@ -365,6 +408,4 @@ public class UserServiceImp implements UserServiceI {
 
         return this.mainConverter.converter(userToSave, UserDto.class);
     }
-
-
 }
