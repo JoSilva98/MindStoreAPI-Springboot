@@ -114,4 +114,3 @@ public class DataLoader implements ApplicationRunner {
         }
     }
 }
-//afeghj
