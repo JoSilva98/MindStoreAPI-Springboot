@@ -43,7 +43,7 @@ public class DataLoader implements ApplicationRunner {
     private final PasswordEncoder encoder;
 
     @Override
-    @CacheEvict(allEntries = true)
+    //@CacheEvict(allEntries = true)
     public void run(ApplicationArguments args) {
         if (!this.productRepository.findAllByRatingASC(5, 0).isEmpty())
             return;
