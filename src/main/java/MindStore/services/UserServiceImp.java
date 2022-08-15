@@ -193,7 +193,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice" }, allEntries = true)
+    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice", "users" }, allEntries = true)
     public List<ProductDto> addProductToCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
@@ -210,7 +210,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice" }, allEntries = true)
+    @CacheEvict(value = { "products", "shoppingcart", "shoppingcartprice", "users" }, allEntries = true)
     public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 

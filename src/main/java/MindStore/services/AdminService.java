@@ -56,7 +56,6 @@ public class AdminService implements AdminServiceI {
     private final CheckAuth checkAuth;
 
     @Override
-    //@Cacheable(value = "products", key = "#field")
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
         System.out.println("Getting products from DB");
 
@@ -73,7 +72,6 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    //Nao faz sentido ter cache porque pode estar sempre a variar o preço
     public List<ProductDto> getAllProductsByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
         validatePages(page, pageSize);
 
@@ -132,7 +130,6 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    //@Cacheable(value = "users", key = "#field")
     public List<UserDto> getAllUsers(String direction, String field, int page, int pageSize) {
         validatePages(page, pageSize);
 
@@ -195,7 +192,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products" }, allEntries = true)
+    @CacheEvict(value = { "products", "users", "average_ratings", "individual_ratings" }, allEntries = true)
     public ProductDto addProduct(ProductDto productDto) {
         this.productRepository
                 .findByTitle(productDto.getTitle())
@@ -265,7 +262,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products" }, allEntries = true)
+    @CacheEvict(value = { "products", "users", "average_ratings", "individual_ratings" }, allEntries = true)
     public ProductDto updateProduct(Long id, ProductUpdateDto productUpdateDto) {
         Product product = findProductById(id, this.productRepository);
         String title = product.getTitle();
