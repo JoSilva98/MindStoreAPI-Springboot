@@ -44,4 +44,6 @@ public interface UserServiceI {
     void deleteRate(Long userId, Long ratingId);
 
     UserDto signUp(UserDto userDto);
+
+    UserDto getUserById(Long id);
 }

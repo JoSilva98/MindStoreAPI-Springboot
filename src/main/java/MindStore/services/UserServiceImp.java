@@ -144,6 +144,12 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
+    public UserDto getUserById(Long id) {
+        User user = findUserById(id, this.userRepository);
+        return this.mainConverter.converter(user, UserDto.class);
+    }
+
+    @Override
     public CategoryDto getCategoryById(int id) {
         Category category = findCategoryById(id, this.categoryRepository);
         return this.mainConverter.converter(category, CategoryDto.class);
@@ -357,4 +363,6 @@ public class UserServiceImp implements UserServiceI {
 
         return this.mainConverter.converter(userToSave, UserDto.class);
     }
+
+
 }

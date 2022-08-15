@@ -51,6 +51,11 @@ public class UserController {
         return this.userServiceI.getProductByCategory(category, page, pageSize);
     }
 
+    @GetMapping("/{id}")
+    public UserDto getUserById(@PathVariable("id") Long id){
+        return this.userServiceI.getUserById(id);
+    }
+
     @GetMapping("/products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long id) {
         return this.userServiceI.getProductById(id);
