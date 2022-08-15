@@ -1,4 +1,4 @@
-package MindStore.dataloader.ProductsFetch;
+package MindStore.dataloader.productsFetch;
 
 import lombok.*;
 

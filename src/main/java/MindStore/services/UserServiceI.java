@@ -13,6 +13,8 @@ import java.util.List;
 public interface UserServiceI {
     List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize);
 
+    List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice);
+
     List<ProductDto> getProductsByTitle(String title, int page, int pageSize);
 
     List<ProductDto> getProductByCategory(String category, int page, int pageSize);
@@ -23,13 +25,17 @@ public interface UserServiceI {
 
     List<ProductDto> getShoppingCart(Long userId);
 
-    Double getCartTotalPrice(Long userId);
+    List<ProductDto> addProductToCart(Long userId, Long productId);
 
-    UserDto signUp(UserDto userDto);
+    List<ProductDto> removeProductFromCart(Long userId, Long productId);
 
     ResponseEntity<String> buyProducts(Long id, int payement);
 
+    Double getCartTotalPrice(Long userId);
+
     UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
+
+    void deleteUser(Long id);
 
     List<IndividualRatingDto> getRatingList(Long userId);
 
@@ -37,11 +43,5 @@ public interface UserServiceI {
 
     void deleteRate(Long userId, Long ratingId);
 
-    List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice);
-
-    List<ProductDto> addProductToCart(Long userId, Long productId);
-
-    List<ProductDto> removeProductFromCart(Long userId, Long productId);
-
-    UserDto deleteUser(Long id);
+    UserDto signUp(UserDto userDto);
 }

@@ -27,7 +27,6 @@ import MindStore.persistence.repositories.Product.IndividualRatingRepository;
 import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -61,10 +60,47 @@ public class UserServiceImp implements UserServiceI {
 
         List<Product> products;
         switch (direction) {
-            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize)
-                    .stream().toList();
-            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize)
-                    .stream().toList();
+            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize);
+            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize);
+            default -> throw new NotAllowedValueException("Direction not allowed");
+        }
+
+        return this.mainConverter.listConverter(products, ProductDto.class);
+    }
+
+    private List<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
+        if (!ProductFieldsEnum.FIELDS.contains(field))
+            throw new NotFoundException("Field not found");
+
+        if (field.equals(ProductFieldsEnum.RATING)) {
+            int offset = (page - 1) * pageSize;
+
+            if (direction.equals(Sort.Direction.ASC))
+                return this.productRepository.findAllByRatingASC(pageSize, offset);
+            else
+                return this.productRepository.findAllByRatingDESC(pageSize, offset);
+        }
+
+        return this.productRepository.findAll(
+                PageRequest.of(page - 1, pageSize)
+                        .withSort(Sort.by(direction, field))
+        ).stream().toList();
+    }
+
+    @Override
+    public List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
+        validatePages(page, pageSize);
+
+        if (minPrice < 0 || maxPrice > 5000)
+            throw new NotAllowedValueException("Price must be between 0 and 5000");
+
+        List<Product> products;
+        int offset = (page - 1) * pageSize;
+        switch (direction) {
+            case DirectionEnum.ASC ->
+                    products = this.productRepository.findAllByPriceASC(pageSize, offset, minPrice, maxPrice);
+            case DirectionEnum.DESC ->
+                    products = this.productRepository.findAllByPriceDESC(pageSize, offset, minPrice, maxPrice);
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
 
@@ -92,9 +128,10 @@ public class UserServiceImp implements UserServiceI {
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
         int offset = (page - 1) * pageSize;
-        List<Product> productList = this.productRepository.findAllByCategory(categoryEntity.getId(), pageSize, offset);
+        List<Product> productList = this.productRepository
+                .findAllByCategory(categoryEntity.getId(), pageSize, offset);
 
-        if (productList.isEmpty())
+        if (productList.isEmpty() && page == 1)
             throw new NotFoundException("No products found with that category");
 
         return this.mainConverter.listConverter(productList, ProductDto.class);
@@ -121,31 +158,35 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public Double getCartTotalPrice(Long userId) {
+    public List<ProductDto> addProductToCart(Long userId, Long productId) {
         this.checkAuth.checkUserId(userId);
 
         User user = findUserById(userId, this.userRepository);
+        Product product = findProductById(productId, this.productRepository);
 
-        return user.getShoppingCart().stream()
-                .mapToDouble(Product::getPrice)
-                .sum();
+        if (product.getStock() == 0)
+            throw new NotFoundException("This product is unavailable");
+
+        user.addProductToCart(product);
+        this.userRepository.save(user);
+
+        return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
     }
 
     @Override
-    public UserDto signUp(UserDto userDto) {
-        this.userRepository.findByEmail(userDto.getEmail())
-                .ifPresent((student) -> {
-                    throw new ConflictException("User already exists");
-                });
+    public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
+        this.checkAuth.checkUserId(userId);
 
-        User userToSave = this.mainConverter.converter(userDto, User.class);
-        Role role = findRoleById(RoleEnum.USER, this.roleRepository);
+        User user = findUserById(userId, this.userRepository);
+        Product product = findProductById(productId, this.productRepository);
 
-        userToSave.setRoleId(role);
-        userToSave.setPassword(this.encoder.encode(userToSave.getPassword()));
-        this.userRepository.save(userToSave);
+        if (!user.getShoppingCart().contains(product))
+            throw new NotFoundException("Product not found on the shopping cart");
 
-        return this.mainConverter.converter(userToSave, UserDto.class);
+        user.removeProductFromCart(product);
+        this.userRepository.save(user);
+
+        return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
     }
 
     @Override
@@ -180,19 +221,14 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public UserDto deleteUser(Long id) {
-        this.checkAuth.checkUserId(id);
+    public Double getCartTotalPrice(Long userId) {
+        this.checkAuth.checkUserId(userId);
 
-        User user = findUserById(id, this.userRepository);
+        User user = findUserById(userId, this.userRepository);
 
-        //ir aos individual ratings para mante-los para a media, senão apaga user e a media mantem-se com user que n esta la
-        user.getIndividualRatings()
-                .forEach(rating -> rating.setUserId(null));
-        List<IndividualRating> userRatings = user.getIndividualRatings();
-
-        this.indRatingRepository.saveAll(userRatings);
-        this.userRepository.delete(user);
-        return this.mainConverter.converter(user, UserDto.class);
+        return user.getShoppingCart().stream()
+                .mapToDouble(Product::getPrice)
+                .sum();
     }
 
     @Override
@@ -207,6 +243,19 @@ public class UserServiceImp implements UserServiceI {
 
         this.userRepository.save(updatedUser);
         return this.mainConverter.converter(updatedUser, UserDto.class);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        this.checkAuth.checkUserId(id);
+        User user = findUserById(id, this.userRepository);
+
+        user.getIndividualRatings()
+                .forEach(rating -> rating.setUserId(null));
+
+        List<IndividualRating> userRatings = user.getIndividualRatings();
+        this.indRatingRepository.saveAll(userRatings);
+        this.userRepository.delete(user);
     }
 
     @Override
@@ -245,30 +294,6 @@ public class UserServiceImp implements UserServiceI {
         return this.mainConverter.converter(averageRating, AverageRatingDto.class);
     }
 
-    @Override
-    public void deleteRate(Long userId, Long ratingId) {
-        this.checkAuth.checkUserId(userId);
-
-        User user = findUserById(userId, this.userRepository);
-        IndividualRating userRating = findRatingById(ratingId, this.indRatingRepository);
-
-        if (!user.getIndividualRatings().contains(userRating))
-            throw new NotFoundException("Rating not found on user's rating list");
-
-        this.indRatingRepository.delete(userRating);
-
-        AverageRating averageRating = userRating.getAverageRatingId();
-        averageRating.decreaseCount();
-        averageRating.setRate(
-                averageRating.getIndividualRatings()
-                        .stream()
-                        .mapToDouble(IndividualRating::getRate)
-                        .average().orElse(0)
-        );
-
-        this.ratingRepository.save(averageRating);
-    }
-
     private int getRatingCount(int rating, User user, Product product,
                                AverageRating averageRating, IndividualRating userRating) {
         int ratingCount;
@@ -293,74 +318,43 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    public List<ProductDto> filterByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
-        validatePages(page, pageSize);
-
-        if (minPrice < 0 || maxPrice > 1000)
-            throw new NotAllowedValueException("Price must be between 0 and 1000");
-
-        List<Product> products;
-        switch (direction) {
-            case DirectionEnum.ASC -> products = findProductsPrice(Sort.Direction.ASC, page, pageSize)
-                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
-                    .toList();
-            case DirectionEnum.DESC -> products = findProductsPrice(Sort.Direction.DESC, page, pageSize)
-                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
-                    .toList();
-            default -> throw new NotAllowedValueException("Direction not allowed");
-        }
-
-        return this.mainConverter.listConverter(products, ProductDto.class);
-    }
-
-    @Override
-    public List<ProductDto> addProductToCart(Long userId, Long productId) {
+    public void deleteRate(Long userId, Long ratingId) {
         this.checkAuth.checkUserId(userId);
 
         User user = findUserById(userId, this.userRepository);
-        Product product = findProductById(productId, this.productRepository);
+        IndividualRating userRating = findRatingById(ratingId, this.indRatingRepository);
 
-        if (product.getStock() == 0) {
-            throw new NotFoundException("This product is unavailable");
-        }
+        if (!user.getIndividualRatings().contains(userRating))
+            throw new NotFoundException("Rating not found on user's rating list");
 
-        user.addProductToCart(product);
-        this.userRepository.save(user);
+        this.indRatingRepository.delete(userRating);
 
-        return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
+        AverageRating averageRating = userRating.getAverageRatingId();
+        averageRating.decreaseCount();
+        averageRating.setRate(
+                averageRating.getIndividualRatings()
+                        .stream()
+                        .mapToDouble(IndividualRating::getRate)
+                        .average().orElse(0)
+        );
+
+        this.ratingRepository.save(averageRating);
     }
 
     @Override
-    public List<ProductDto> removeProductFromCart(Long userId, Long productId) {
-        this.checkAuth.checkUserId(userId);
+    public UserDto signUp(UserDto userDto) {
+        this.userRepository.findByEmail(userDto.getEmail())
+                .ifPresent((student) -> {
+                    throw new ConflictException("Email already beeing used");
+                });
 
-        User user = findUserById(userId, this.userRepository);
-        Product product = findProductById(productId, this.productRepository);
+        User userToSave = this.mainConverter.converter(userDto, User.class);
+        Role role = findRoleById(RoleEnum.USER, this.roleRepository);
 
-        if (!user.getShoppingCart().contains(product))
-            throw new NotFoundException("Product not found on the shopping cart");
+        userToSave.setRoleId(role);
+        userToSave.setPassword(this.encoder.encode(userToSave.getPassword()));
+        this.userRepository.save(userToSave);
 
-        user.removeProductFromCart(product);
-        this.userRepository.save(user);
-
-        return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
-    }
-
-
-    private Page<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
-        if (!ProductFieldsEnum.FIELDS.contains(field))
-            throw new NotFoundException("Field not found");
-
-        return this.productRepository.findAll(
-                PageRequest.of(page - 1, pageSize)
-                        .withSort(Sort.by(direction, field))
-        );
-    }
-
-    private Page<Product> findProductsPrice(Sort.Direction direction, int page, int pageSize) {
-        return this.productRepository.findAll(
-                PageRequest.of(page - 1, pageSize)
-                        .withSort(Sort.by(direction, ProductFieldsEnum.PRICE))
-        );
+        return this.mainConverter.converter(userToSave, UserDto.class);
     }
 }

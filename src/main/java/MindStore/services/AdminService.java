@@ -11,6 +11,7 @@ import MindStore.converters.MainConverterI;
 import MindStore.enums.DirectionEnum;
 import MindStore.enums.ProductFieldsEnum;
 import MindStore.enums.RoleEnum;
+import MindStore.enums.UserFieldsEnum;
 import MindStore.exceptions.ConflictException;
 import MindStore.exceptions.NotAllowedValueException;
 import MindStore.exceptions.NotFoundException;
@@ -28,7 +29,6 @@ import MindStore.persistence.repositories.Product.ProductRepository;
 import MindStore.persistence.repositories.Person.UserRepository;
 import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,10 +59,8 @@ public class AdminService implements AdminServiceI {
 
         List<Product> products;
         switch (direction) {
-            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize)
-                    .stream().toList();
-            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize)
-                    .stream().toList();
+            case DirectionEnum.ASC -> products = findProducts(Sort.Direction.ASC, field, page, pageSize);
+            case DirectionEnum.DESC -> products = findProducts(Sort.Direction.DESC, field, page, pageSize);
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
 
@@ -73,38 +71,39 @@ public class AdminService implements AdminServiceI {
     public List<ProductDto> getAllProductsByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice) {
         validatePages(page, pageSize);
 
-        if (minPrice < 0 || maxPrice > 1000)
-            throw new NotAllowedValueException("Price must be between 0 and 1000");
+        if (minPrice < 0 || maxPrice > 5000)
+            throw new NotAllowedValueException("Price must be between 0 and 5000");
 
         List<Product> products;
+        int offset = (page - 1) * pageSize;
         switch (direction) {
-            case DirectionEnum.ASC -> products = findProductsPrice(Sort.Direction.ASC, page, pageSize)
-                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
-                    .toList();
-            case DirectionEnum.DESC -> products = findProductsPrice(Sort.Direction.DESC, page, pageSize)
-                    .stream().filter(prod -> prod.getPrice() >= minPrice && prod.getPrice() <= maxPrice)
-                    .toList();
+            case DirectionEnum.ASC ->
+                    products = this.productRepository.findAllByPriceASC(pageSize, offset, minPrice, maxPrice);
+            case DirectionEnum.DESC ->
+                    products = this.productRepository.findAllByPriceDESC(pageSize, offset, minPrice, maxPrice);
             default -> throw new NotAllowedValueException("Direction not allowed");
         }
 
         return this.converter.listConverter(products, ProductDto.class);
     }
 
-    private Page<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
+    private List<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
         if (!ProductFieldsEnum.FIELDS.contains(field))
             throw new NotFoundException("Field not found");
+
+        if (field.equals(ProductFieldsEnum.RATING)) {
+            int offset = (page - 1) * pageSize;
+
+            if (direction.equals(Sort.Direction.ASC))
+                return this.productRepository.findAllByRatingASC(pageSize, offset);
+            else
+                return this.productRepository.findAllByRatingDESC(pageSize, offset);
+        }
 
         return this.productRepository.findAll(
                 PageRequest.of(page - 1, pageSize)
                         .withSort(Sort.by(direction, field))
-        );
-    }
-
-    private Page<Product> findProductsPrice(Sort.Direction direction, int page, int pageSize) {
-        return this.productRepository.findAll(
-                PageRequest.of(page - 1, pageSize)
-                        .withSort(Sort.by(direction, ProductFieldsEnum.PRICE))
-        );
+        ).stream().toList();
     }
 
     @Override
@@ -123,6 +122,9 @@ public class AdminService implements AdminServiceI {
     @Override
     public List<UserDto> getAllUsers(String direction, String field, int page, int pageSize) {
         validatePages(page, pageSize);
+
+        if (!UserFieldsEnum.FIELDS.contains(field))
+            throw new NotFoundException("Field not found");
 
         List<User> users;
         switch (direction) {
@@ -149,7 +151,7 @@ public class AdminService implements AdminServiceI {
 
     @Override
     public List<UserDto> getUsersByName(String name) {
-        List<User> user = this.userRepository.findByName(name);
+        List<User> user = this.userRepository.findAllByName(name);
         if (user.isEmpty()) throw new NotFoundException("User not found");
         return this.converter.listConverter(user, UserDto.class);
     }
@@ -165,6 +167,7 @@ public class AdminService implements AdminServiceI {
 
         Admin admin = this.converter.converter(adminDto, Admin.class);
         admin.setRoleId(role);
+        admin.setPassword(this.encoder.encode(adminDto.getPassword()));
 
         return this.converter.converter(
                 this.adminRepository.save(admin), AdminDto.class
@@ -241,13 +244,21 @@ public class AdminService implements AdminServiceI {
     @Override
     public ProductDto updateProduct(Long id, ProductUpdateDto productUpdateDto) {
         Product product = findProductById(id, this.productRepository);
+        String title = product.getTitle();
+
+        Category category = this.categoryRepository
+                .findByCategory(productUpdateDto.getCategory())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
 
         this.productRepository.findByTitle(productUpdateDto.getTitle())
-                .ifPresent(x -> {
-                    throw new ConflictException("Title already exists");
+                .ifPresent(prod -> {
+                    if (!title.equals(prod.getTitle()))
+                        throw new ConflictException("Title already exists");
                 });
 
+        productUpdateDto.setCategory(null);
         product = this.converter.updateConverter(productUpdateDto, product);
+        product.setCategory(category);
 
         return this.converter.converter(
                 this.productRepository.save(product), ProductDto.class
@@ -276,6 +287,9 @@ public class AdminService implements AdminServiceI {
     @Override
     public void deleteProduct(Long id) {
         Product product = findProductById(id, this.productRepository);
+        product.getUsers()
+                .forEach(user -> user.removeProductFromCart(product));
+
         this.productRepository.delete(product);
         this.ratingRepository.delete(product.getRatingId());
     }
@@ -286,5 +300,6 @@ public class AdminService implements AdminServiceI {
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
         this.productRepository.delete(product);
+        this.ratingRepository.delete(product.getRatingId());
     }
 }

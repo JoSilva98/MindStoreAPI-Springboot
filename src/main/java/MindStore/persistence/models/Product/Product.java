@@ -42,7 +42,6 @@ public class Product {
     @ManyToMany(mappedBy = "shoppingCart")
     private Set<User> users;
 
-    //@OnDelete(action = OnDeleteAction.CASCADE)
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "rating_id_fk")
     private AverageRating ratingId;

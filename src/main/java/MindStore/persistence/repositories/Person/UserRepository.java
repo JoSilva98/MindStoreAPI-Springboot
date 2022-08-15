@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM users " +
             "WHERE users.first_name LIKE %:name% " +
             "OR users.last_name LIKE %:name%", nativeQuery = true)
-    List<User> findByName(String name);
+    List<User> findAllByName(String name);
 
     Optional<User> findByEmail(String email);
 }

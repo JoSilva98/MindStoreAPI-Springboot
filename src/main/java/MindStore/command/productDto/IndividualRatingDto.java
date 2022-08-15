@@ -11,6 +11,9 @@ import lombok.*;
 
 public class IndividualRatingDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Long id;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private int rate;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

@@ -1,6 +1,8 @@
 package MindStore.persistence.repositories.Product;
 
 import MindStore.persistence.models.Product.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -29,4 +31,32 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "ORDER BY products.title " +
             "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
     List<Product> findAllByCategory(int categoryId, int pageSize, int offset);
+
+    @Query(value = "SELECT * FROM products " +
+            "INNER JOIN average_ratings " +
+            "ON products.rating_id_fk = average_ratings.id " +
+            "ORDER BY average_ratings.rate ASC " +
+            "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+    List<Product> findAllByRatingASC(int pageSize, int offset);
+
+    @Query(value = "SELECT * FROM products " +
+            "INNER JOIN average_ratings " +
+            "ON products.rating_id_fk = average_ratings.id " +
+            "ORDER BY average_ratings.rate DESC " +
+            "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+    List<Product> findAllByRatingDESC(int pageSize, int offset);
+
+    @Query(value = "SELECT * FROM products " +
+            "WHERE products.price >= :minPrice " +
+            "AND products.price <= :maxPrice " +
+            "ORDER BY products.price ASC " +
+            "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+    List<Product> findAllByPriceASC(int pageSize, int offset, int minPrice, int maxPrice);
+
+    @Query(value = "SELECT * FROM products " +
+            "WHERE products.price >= :minPrice " +
+            "AND products.price <= :maxPrice " +
+            "ORDER BY products.price DESC " +
+            "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+    List<Product> findAllByPriceDESC(int pageSize, int offset, int minPrice, int maxPrice);
 }

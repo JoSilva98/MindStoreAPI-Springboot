@@ -23,7 +23,7 @@ public class ProductUpdateDto {
     @Size(min = 2, max = 20)
     private String category;
 
-    @Size(min = 2, max = 60, message = "Image should have at least 2 characters and 60 max")
+    @Size(min = 2, max = 150, message = "Image should have at least 2 characters and 60 max")
     private String image;
 
     @Min(0)

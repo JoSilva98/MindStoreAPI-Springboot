@@ -1,10 +1,7 @@
-package MindStore.dataloader.ProductsFetch;
-
-//tem que ter props todas iguais a do product model para podermos guardar na DB
+package MindStore.dataloader.productsFetch;
 
 import lombok.*;
 
-//@RequiredArgsConstructor //so inicia as variaveis final
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -12,7 +9,6 @@ import lombok.*;
 @Setter
 @ToString
 public class ApiProduct {
-    //private Long id;
     private String title;
     private double price;
     private String description;

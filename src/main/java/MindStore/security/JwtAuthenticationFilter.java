@@ -61,5 +61,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         //Add token in response
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + token);
+        response.addHeader("ID", principal.getPerson().getId().toString());
     }
 }

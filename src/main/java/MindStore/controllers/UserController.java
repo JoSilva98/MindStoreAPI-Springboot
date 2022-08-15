@@ -29,7 +29,17 @@ public class UserController {
     }
     //Done
 
-    @GetMapping("/products/byname")
+    @GetMapping("/products/price")
+    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction,
+                                          @RequestParam(value = "page") int page,
+                                          @RequestParam(value = "pagesize") int pageSize,
+                                          @RequestParam(value = "min") int minPrice,
+                                          @RequestParam(value = "max") int maxPrice) {
+        return this.userServiceI.filterByPrice(direction, page, pageSize, minPrice, maxPrice);
+    }
+    //Done
+
+    @GetMapping("/products/name")
     public List<ProductDto> getProductByTitle(@RequestParam(value = "title") String title,
                                               @RequestParam(value = "page") int page,
                                               @RequestParam(value = "pagesize") int pageSize) {
@@ -37,8 +47,8 @@ public class UserController {
     }
     //Done
 
-    @GetMapping("/products/bycategory")
-    public List<ProductDto> getProductByCategory(@RequestParam("category") String category,
+    @GetMapping("/products/category")
+    public List<ProductDto> getProductByCategory(@RequestParam(value = "category") String category,
                                                  @RequestParam(value = "page") int page,
                                                  @RequestParam(value = "pagesize") int pageSize) {
         return this.userServiceI.getProductByCategory(category, page, pageSize);
@@ -63,30 +73,6 @@ public class UserController {
     }
     //Done
 
-    @GetMapping("/shoppingcart/price/{userid}")
-    public String getCartTotalPrice(@PathVariable("userid") Long userId) {
-        return this.userServiceI.getCartTotalPrice(userId) + "€";
-    }
-    //Done
-
-    @PostMapping
-    public UserDto signUp(@Valid @RequestBody UserDto userDto) {
-        return this.userServiceI.signUp(userDto);
-    }
-    //Done
-
-    @DeleteMapping("/delete/{id}")
-    public UserDto deleteUser(@PathVariable("id") Long id) {
-        return this.userServiceI.deleteUser(id);
-    }
-
-
-    @PatchMapping("/{id}")
-    public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
-        return this.userServiceI.updateUser(id, userUpdateDto);
-    }
-    //Done
-
     @PatchMapping("addtocart")
     public List<ProductDto> addProductToCart(@RequestParam(value = "userid") Long userId,
                                              @RequestParam(value = "productid") Long productId) {
@@ -108,6 +94,24 @@ public class UserController {
     }
     //Done
 
+    @GetMapping("/shoppingcart/price/{userid}")
+    public String getCartTotalPrice(@PathVariable("userid") Long userId) {
+        return this.userServiceI.getCartTotalPrice(userId) + "€";
+    }
+    //Done
+
+    @PatchMapping("/{id}")
+    public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        return this.userServiceI.updateUser(id, userUpdateDto);
+    }
+    //Done
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteUser(@PathVariable("id") Long id) {
+        this.userServiceI.deleteUser(id);
+    }
+    //Done
+
     @GetMapping("/rating/{userid}")
     public List<IndividualRatingDto> getRatingList(@PathVariable("userid") Long userId) {
         return this.userServiceI.getRatingList(userId);
@@ -119,8 +123,8 @@ public class UserController {
                                         @RequestParam(value = "rating") int rating) {
         return this.userServiceI.rateProduct(userId, productId, rating);
     }
-    //Done
 
+    //Done
     @DeleteMapping("/rating")
     public void deleteRate(@RequestParam(value = "userid") Long userId,
                            @RequestParam(value = "ratingid") Long ratingId) {
@@ -128,13 +132,9 @@ public class UserController {
     }
     //Done
 
-    @GetMapping("/price")
-    public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction,
-                                          @RequestParam(value = "page") int page,
-                                          @RequestParam(value = "pagesize") int pageSize,
-                                          @RequestParam(value = "min") int minPrice,
-                                          @RequestParam(value = "max") int maxPrice) {
-        return this.userServiceI.filterByPrice(direction, page, pageSize, minPrice, maxPrice);
+    @PostMapping
+    public UserDto signUp(@Valid @RequestBody UserDto userDto) {
+        return this.userServiceI.signUp(userDto);
     }
     //Done
 }

@@ -15,12 +15,7 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "individual_ratings")
-
-//para perceber qual user deu qual rating, para poder remover rating ou dar update e recalcular media
-//User (tem vários Individual Ratings) -> Individual Rating (tem um User)
-//1 Average Rating  -> 1 produto
 public class IndividualRating {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true, updatable = false)
