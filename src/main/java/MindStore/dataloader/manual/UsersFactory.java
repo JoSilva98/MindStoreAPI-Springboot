@@ -17,6 +17,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(1973, 2, 23))
                 .address("Rua do Quim, 3800-237")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         User user2 = User.builder()
@@ -27,6 +28,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(1996, 6, 16))
                 .address("Rua da Ana, 3801-238")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         User user3 = User.builder()
@@ -37,6 +39,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(1997, 9, 13))
                 .address("Rua do Coutinho, 3802-239")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         User user4 = User.builder()
@@ -47,6 +50,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(1999, 10, 22))
                 .address("Rua do Coutinho, 3802-239")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         User user5 = User.builder()
@@ -57,6 +61,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(1989, 12, 22))
                 .address("Rua da Elisa, 3803-240")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         User user6 = User.builder()
@@ -67,6 +72,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(1993, 10, 7))
                 .address("Rua da Ala, 3804-241")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         User user7 = User.builder()
@@ -77,6 +83,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(1995, 9, 13))
                 .address("Rua do Nuno, 3805-242")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         User user8 = User.builder()
@@ -87,6 +94,7 @@ public class UsersFactory {
                 .dateOfBirth(LocalDate.of(2004, 8, 26))
                 .address("Rua da Carolina, 3806-243")
                 .roleId(userRole)
+                .image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU")
                 .build();
 
         return List.of(user1, user2, user3, user4, user5, user6, user7, user8);

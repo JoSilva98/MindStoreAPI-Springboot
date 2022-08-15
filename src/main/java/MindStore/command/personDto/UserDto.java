@@ -1,12 +1,15 @@
 package MindStore.command.personDto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -26,4 +29,7 @@ public class UserDto extends PersonDto {
     @NotNull //qd datetimeformat em vez de notempty
     @DateTimeFormat
     private LocalDate dateOfBirth;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String image;
 }

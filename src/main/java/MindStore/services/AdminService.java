@@ -56,7 +56,7 @@ public class AdminService implements AdminServiceI {
     private final CheckAuth checkAuth;
 
     @Override
-    @Cacheable(value = "products", key = "#field")
+    //@Cacheable(value = "products", key = "#field")
     public List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize) {
         System.out.println("Getting products from DB");
 
@@ -132,10 +132,8 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @Cacheable(value = "users", key = "#field")
+    //@Cacheable(value = "users", key = "#field")
     public List<UserDto> getAllUsers(String direction, String field, int page, int pageSize) {
-        System.out.println("Fetching all users from the DB");
-
         validatePages(page, pageSize);
 
         if (!UserFieldsEnum.FIELDS.contains(field))
@@ -178,6 +176,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "admins" }, allEntries = true)
     public AdminDto addAdmin(AdminDto adminDto) {
         this.adminRepository.findByEmail(adminDto.getEmail())
                 .ifPresent(x -> {
@@ -244,6 +243,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
+    @CacheEvict(value = { "admins" }, allEntries = true)
     public AdminDto updateAdmin(Long id, AdminUpdateDto adminUpdateDto) {
         this.checkAuth.checkUserId(id);
 

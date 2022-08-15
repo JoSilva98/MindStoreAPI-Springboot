@@ -116,7 +116,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @Cacheable(value = "products", key = "#title")
+    //@Cacheable(value = "products", key = "#title")
     public List<ProductDto> getProductsByTitle(String title, int page, int pageSize) {
         System.out.println("Getting products by title from DB");
 
@@ -132,7 +132,7 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-    @Cacheable(value = "products", key = "#category")
+    //@Cacheable(value = "products", key = "#category")
     public List<ProductDto> getProductByCategory(String category, int page, int pageSize) {
         System.out.println("Fetching products by Category to the DB");
 
@@ -312,9 +312,6 @@ public class UserServiceImp implements UserServiceI {
     }
 
     @Override
-//    @Caching(evict = {
-//            @CacheEvict(value = "products", key = "#field")
-//    })
     @CacheEvict(value = { "products", "ratings", "shoppingcart" }, allEntries = true)
     public AverageRatingDto rateProduct(Long userId, Long productId, int rating) {
         this.checkAuth.checkUserId(userId);
@@ -392,7 +389,8 @@ public class UserServiceImp implements UserServiceI {
         this.ratingRepository.save(averageRating);
     }
 
-    @Override //nao ha evicts aqui, cada user so se pode ir bucar pelo proprio id
+    @Override
+    @CacheEvict(value = { "users" }, allEntries = true)
     public UserDto signUp(UserDto userDto) {
         this.userRepository.findByEmail(userDto.getEmail())
                 .ifPresent((student) -> {
