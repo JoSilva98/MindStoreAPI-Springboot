@@ -44,7 +44,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/v1/users/categories/**").permitAll()
                 .antMatchers("/api/v1/users/**").hasRole("USER")
                 .antMatchers("/api/v1/admins/**").hasRole("ADMIN")
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .antMatchers("/v2/api-docs", "/swagger-resources", "/swagger-resources/**",
+                        "/configuration/ui", "/configuration/security", "/swagger-ui.html",
+                        "/webjars/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll();
     }
 
     @Bean
