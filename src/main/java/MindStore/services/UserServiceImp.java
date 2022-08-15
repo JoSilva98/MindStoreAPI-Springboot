@@ -35,10 +35,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static MindStore.helpers.FindBy.*;
 import static MindStore.helpers.ValidateParams.validatePages;
 
@@ -115,7 +113,6 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> getProductsByTitle(String title, int page, int pageSize) {
-        System.out.println("Getting products by title from DB");
 
         validatePages(page, pageSize);
 
@@ -130,7 +127,6 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> getProductByCategory(String category, int page, int pageSize) {
-        System.out.println("Fetching products by Category to the DB");
 
         validatePages(page, pageSize);
 
@@ -180,6 +176,8 @@ public class UserServiceImp implements UserServiceI {
     @Override
     @Cacheable(value = "shoppingcart", key = "#userId")
     public List<ProductDto> getShoppingCart(Long userId) {
+        System.out.println("Fetching shopping cart from the DB");
+
         this.checkAuth.checkUserId(userId);
 
         List<Product> productList = findUserById(userId, this.userRepository).getShoppingCart();
