@@ -76,7 +76,7 @@
         </dependency>
 
         <!-- Swagger -->
-        <!-- https://mindshop-api.herokuapp.com/swagger-ui/index.html#/ -->
+        <!-- https://mindshop-api.herokuapp.com/swagger-ui/index.html -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
