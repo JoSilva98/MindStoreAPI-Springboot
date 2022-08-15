@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUserById(@PathVariable("id") Long id){
+    public UserDto getUserById(@PathVariable("id") Long id) {
         return this.userServiceI.getUserById(id);
     }
 
@@ -81,6 +81,11 @@ public class UserController {
     public List<ProductDto> removeProductFromCart(@RequestParam(value = "userid") Long userId,
                                                   @RequestParam(value = "productid") Long productId) {
         return this.userServiceI.removeProductFromCart(userId, productId);
+    }
+
+    @PatchMapping("clearcart/{userid}")
+    public List<ProductDto> removeAllProductsFromCart(@PathVariable("userid") Long userId) {
+        return this.userServiceI.removeAllProductsFromCart(userId);
     }
 
     @PostMapping("buy/{id}")

@@ -195,6 +195,15 @@ public class UserServiceImp implements UserServiceI {
         if (product.getStock() == 0)
             throw new NotFoundException("This product is unavailable");
 
+        int count = 0;
+        for (Product prod : user.getShoppingCart()) {
+            if (prod.getTitle().equals(product.getTitle()))
+                count++;
+        }
+
+        if (count >= 10)
+            throw new NotAllowedValueException("You can not add more then 10 products");
+
         user.addProductToCart(product);
         this.userRepository.save(user);
 
@@ -213,6 +222,18 @@ public class UserServiceImp implements UserServiceI {
             throw new NotFoundException("Product not found on the shopping cart");
 
         user.removeProductFromCart(product);
+        this.userRepository.save(user);
+
+        return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);
+    }
+
+    @Override
+    @CacheEvict(value = {"products", "shoppingcart", "shoppingcartprice", "users"}, allEntries = true)
+    public List<ProductDto> removeAllProductsFromCart(Long userId) {
+        this.checkAuth.checkUserId(userId);
+
+        User user = findUserById(userId, this.userRepository);
+        user.setShoppingCart(new ArrayList<>());
         this.userRepository.save(user);
 
         return this.mainConverter.listConverter(user.getShoppingCart(), ProductDto.class);

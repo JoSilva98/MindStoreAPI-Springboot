@@ -29,6 +29,8 @@ public interface UserServiceI {
 
     List<ProductDto> removeProductFromCart(Long userId, Long productId);
 
+    List<ProductDto> removeAllProductsFromCart(Long userId);
+
     ResponseEntity<String> buyProducts(Long id, int payement);
 
     Double getCartTotalPrice(Long userId);
