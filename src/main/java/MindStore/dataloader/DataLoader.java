@@ -15,6 +15,7 @@ import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -42,6 +43,7 @@ public class DataLoader implements ApplicationRunner {
     private final PasswordEncoder encoder;
 
     @Override
+    @CacheEvict(allEntries = true)
     public void run(ApplicationArguments args) {
         if (!this.productRepository.findAllByRatingASC(5, 0).isEmpty())
             return;
