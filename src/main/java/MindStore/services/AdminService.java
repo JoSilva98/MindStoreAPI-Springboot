@@ -37,7 +37,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import static MindStore.helpers.FindBy.*;
@@ -175,7 +174,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "admins" }, allEntries = true)
+    @CacheEvict(value = {"admins"}, allEntries = true)
     public AdminDto addAdmin(AdminDto adminDto) {
         this.adminRepository.findByEmail(adminDto.getEmail())
                 .ifPresent(x -> {
@@ -194,7 +193,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "users", "average_ratings", "individual_ratings" }, allEntries = true)
+    @CacheEvict(value = {"products", "users", "average_ratings", "individual_ratings"}, allEntries = true)
     public ProductDto addProduct(ProductDto productDto) {
         this.productRepository
                 .findByTitle(productDto.getTitle())
@@ -223,7 +222,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "users" }, allEntries = true)
+    @CacheEvict(value = {"users"}, allEntries = true)
     public UserDto addUser(UserDto userDto) {
         this.userRepository.findByEmail(userDto.getEmail())
                 .ifPresent(x -> {
@@ -242,7 +241,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "admins" }, allEntries = true)
+    @CacheEvict(value = {"admins"}, allEntries = true)
     public AdminDto updateAdmin(Long id, AdminUpdateDto adminUpdateDto) {
         this.checkAuth.checkUserId(id);
 
@@ -264,7 +263,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "users", "average_ratings", "individual_ratings" }, allEntries = true)
+    @CacheEvict(value = {"products", "users", "average_ratings", "individual_ratings"}, allEntries = true)
     public ProductDto updateProduct(Long id, ProductUpdateDto productUpdateDto) {
         Product product = findProductById(id, this.productRepository);
         String title = product.getTitle();
@@ -289,7 +288,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "users" }, allEntries = true)
+    @CacheEvict(value = {"users"}, allEntries = true)
     public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         User user = findUserById(id, this.userRepository);
 
@@ -309,7 +308,7 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "shoppingcart", "ratings" }, allEntries = true)
+    @CacheEvict(value = {"products", "shoppingcart", "ratings"}, allEntries = true)
     public void deleteProduct(Long id) {
         Product product = findProductById(id, this.productRepository);
 
@@ -331,12 +330,11 @@ public class AdminService implements AdminServiceI {
     }
 
     @Override
-    @CacheEvict(value = { "products", "users", "average_ratings", "individual_ratings" }, allEntries = true)
+    @CacheEvict(value = {"products", "shoppingcart", "ratings"}, allEntries = true)
     public void deleteProductByTitle(String title) {
         Product product = this.productRepository.findByTitle(title)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        this.productRepository.delete(product);
-        this.ratingRepository.delete(product.getRatingId());
+        deleteProduct(product.getId());
     }
 }
