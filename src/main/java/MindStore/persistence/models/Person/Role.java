@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "roles")
 public class Role {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //em vez de identity porque quero + que uma tabela(herança n dava)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true, updatable = false)
     private int id;
 

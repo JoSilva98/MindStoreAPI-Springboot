@@ -1,7 +1,6 @@
 package MindStore.dataloader;
 
 import MindStore.converters.MainConverterI;
-import MindStore.persistence.models.Person.Admin;
 import MindStore.persistence.models.Person.Role;
 import MindStore.persistence.models.Person.User;
 import MindStore.persistence.models.Product.Category;

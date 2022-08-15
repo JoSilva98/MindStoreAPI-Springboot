@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @ToString
 @Entity
 @Table(name = "admins")
-public class Admin extends Person{
+public class Admin extends Person {
     public Admin() {
         super();
     }

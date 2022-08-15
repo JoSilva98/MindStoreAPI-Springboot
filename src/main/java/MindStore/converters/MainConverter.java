@@ -5,9 +5,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MainConverter implements MainConverterI {
-//como metodos default ja foram implementados na interface
-
-
     private final ModelMapper modelMapper;
 
     public MainConverter(ModelMapper modelMapper) {

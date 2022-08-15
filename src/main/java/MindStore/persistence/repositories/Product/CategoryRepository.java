@@ -9,8 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-
-    //query para ir buscar a tabela categories od é igual ao parametro da funçao de baixo
     @Query(value = "SELECT * From categories WHERE UPPER(categories.category) = UPPER(:category)", nativeQuery = true)
     Optional<Category> findByCategory(String category);
 

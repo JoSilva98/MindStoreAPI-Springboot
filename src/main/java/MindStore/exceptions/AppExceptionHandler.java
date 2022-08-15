@@ -1,6 +1,5 @@
 package MindStore.exceptions;
 
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-//esta notificação qd mando throw exception apanha-as aqui (AOP)
-//evita try catch nos serviços
 @ControllerAdvice
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
@@ -34,16 +29,13 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    //as exceções personalizadas
     @ExceptionHandler(value = {
             ConflictException.class,
             NotAllowedValueException.class,
             NotFoundException.class,
-            })
-
+    })
 
     protected ResponseEntity<Object> notFoundHandler(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
-
 }

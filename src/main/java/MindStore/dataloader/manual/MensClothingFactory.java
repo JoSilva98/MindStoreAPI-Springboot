@@ -7,7 +7,6 @@ import MindStore.persistence.models.Product.IndividualRating;
 import MindStore.persistence.models.Product.Product;
 import MindStore.persistence.repositories.Product.AverageRatingRepository;
 import MindStore.persistence.repositories.Product.IndividualRatingRepository;
-import MindStore.persistence.repositories.Product.ProductRepository;
 
 import java.util.ArrayList;
 import java.util.List;

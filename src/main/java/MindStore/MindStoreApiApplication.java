@@ -5,8 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class MindStoreApiApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(MindStoreApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MindStoreApiApplication.class, args);
+    }
 }

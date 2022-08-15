@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface AdminServiceI {
     List<ProductDto> getAllProducts(String direction, String field, int page, int pageSize);
+
     List<ProductDto> getAllProductsByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice);
 
     ProductDto getProductById(Long id);

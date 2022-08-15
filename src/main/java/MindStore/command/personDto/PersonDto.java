@@ -38,6 +38,5 @@ public class PersonDto {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    //vai buscar a variavel do Person qd é inserido
     private int roleId;
 }

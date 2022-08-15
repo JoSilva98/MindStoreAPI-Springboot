@@ -5,11 +5,9 @@ import org.modelmapper.ModelMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//CONVERTER GENERICO
 public interface MainConverterI {
     ModelMapper getMapper();
 
-    //default para poder ter corpo no metodo da interface
     default <T, D> D converter(T inClass, Class<D> outClass) {
         return getMapper().map(inClass, outClass);
     }

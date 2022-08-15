@@ -2,17 +2,13 @@ package MindStore.persistence.models.Person;
 
 import MindStore.persistence.models.Product.IndividualRating;
 import MindStore.persistence.models.Product.Product;
-import MindStore.persistence.models.Product.AverageRating;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
 
 @Getter
 @Setter

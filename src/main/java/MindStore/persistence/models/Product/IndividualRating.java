@@ -2,11 +2,8 @@ package MindStore.persistence.models.Product;
 
 import MindStore.persistence.models.Person.User;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor

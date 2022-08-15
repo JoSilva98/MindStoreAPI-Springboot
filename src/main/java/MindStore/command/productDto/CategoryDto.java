@@ -19,9 +19,4 @@ public class CategoryDto {
     @NotEmpty
     @Size(min = 2, max = 20, message = "Category name should have at least 2 characters")
     private String category;
-
-    //comentado por bug de recursividade
-//    @JsonIgnore
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY) //para nao poderem mexer
-//    private List<Product> productList = new ArrayList<>();
 }

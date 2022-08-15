@@ -11,7 +11,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -29,16 +28,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
         try {
-            //Grab credentials and map them to LoginViewModel
             LoginViewModel credentials = new ObjectMapper().readValue(request.getInputStream(), LoginViewModel.class);
 
-            //Create login token
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     credentials.getUsername(),
                     credentials.getPassword(),
                     new ArrayList<>());
 
-            //Authenticate user
             return authenticationManager.authenticate(authenticationToken);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -49,17 +45,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult) throws IOException, ServletException {
-        //Grab principal
+                                            Authentication authResult) {
         PersonAuth principal = (PersonAuth) authResult.getPrincipal();
 
-        //Create JWT Token
         String token = JWT.create()
                 .withSubject(principal.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET.getBytes()));
 
-        //Add token in response
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + token);
         response.addHeader("ID", principal.getPerson().getId().toString());
     }

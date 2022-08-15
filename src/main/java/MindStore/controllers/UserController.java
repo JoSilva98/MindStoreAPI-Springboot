@@ -27,7 +27,6 @@ public class UserController {
                                            @RequestParam(value = "pagesize") int pageSize) {
         return this.userServiceI.getAllProducts(direction, field, page, pageSize);
     }
-    //Done
 
     @GetMapping("/products/price")
     public List<ProductDto> filterByPrice(@RequestParam(value = "direction") String direction,
@@ -37,7 +36,6 @@ public class UserController {
                                           @RequestParam(value = "max") int maxPrice) {
         return this.userServiceI.filterByPrice(direction, page, pageSize, minPrice, maxPrice);
     }
-    //Done
 
     @GetMapping("/products/name")
     public List<ProductDto> getProductByTitle(@RequestParam(value = "title") String title,
@@ -45,7 +43,6 @@ public class UserController {
                                               @RequestParam(value = "pagesize") int pageSize) {
         return this.userServiceI.getProductsByTitle(title, page, pageSize);
     }
-    //Done
 
     @GetMapping("/products/category")
     public List<ProductDto> getProductByCategory(@RequestParam(value = "category") String category,
@@ -53,64 +50,54 @@ public class UserController {
                                                  @RequestParam(value = "pagesize") int pageSize) {
         return this.userServiceI.getProductByCategory(category, page, pageSize);
     }
-    //Done
 
     @GetMapping("/products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long id) {
         return this.userServiceI.getProductById(id);
     }
-    //Done
 
     @GetMapping("/categories/{id}")
     public CategoryDto getCategoryById(@PathVariable("id") int id) {
         return this.userServiceI.getCategoryById(id);
     }
-    //Done
 
     @GetMapping("/shoppingcart/{userid}")
     public List<ProductDto> getShoppingCart(@PathVariable("userid") Long userId) {
         return this.userServiceI.getShoppingCart(userId);
     }
-    //Done
 
     @PatchMapping("addtocart")
     public List<ProductDto> addProductToCart(@RequestParam(value = "userid") Long userId,
                                              @RequestParam(value = "productid") Long productId) {
         return this.userServiceI.addProductToCart(userId, productId);
     }
-    //Done
 
     @PatchMapping("removefromcart")
     public List<ProductDto> removeProductFromCart(@RequestParam(value = "userid") Long userId,
                                                   @RequestParam(value = "productid") Long productId) {
         return this.userServiceI.removeProductFromCart(userId, productId);
     }
-    //Done
 
     @PostMapping("buy/{id}")
     public ResponseEntity<String> buyProducts(@PathVariable("id") Long id,
                                               @Valid @RequestBody int payment) {
         return this.userServiceI.buyProducts(id, payment);
     }
-    //Done
 
     @GetMapping("/shoppingcart/price/{userid}")
     public String getCartTotalPrice(@PathVariable("userid") Long userId) {
         return this.userServiceI.getCartTotalPrice(userId) + "€";
     }
-    //Done
 
     @PatchMapping("/{id}")
     public UserDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         return this.userServiceI.updateUser(id, userUpdateDto);
     }
-    //Done
 
     @DeleteMapping("/delete/{id}")
     public void deleteUser(@PathVariable("id") Long id) {
         this.userServiceI.deleteUser(id);
     }
-    //Done
 
     @GetMapping("/rating/{userid}")
     public List<IndividualRatingDto> getRatingList(@PathVariable("userid") Long userId) {
@@ -124,17 +111,14 @@ public class UserController {
         return this.userServiceI.rateProduct(userId, productId, rating);
     }
 
-    //Done
     @DeleteMapping("/rating")
     public void deleteRate(@RequestParam(value = "userid") Long userId,
                            @RequestParam(value = "ratingid") Long ratingId) {
         this.userServiceI.deleteRate(userId, ratingId);
     }
-    //Done
 
     @PostMapping
     public UserDto signUp(@Valid @RequestBody UserDto userDto) {
         return this.userServiceI.signUp(userDto);
     }
-    //Done
 }
