@@ -43,6 +43,9 @@ public class DataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        if (!this.productRepository.findAllByRatingASC(5, 0).isEmpty())
+            return;
+
         try {
             //Roles
             Role userRole = Role.builder()
