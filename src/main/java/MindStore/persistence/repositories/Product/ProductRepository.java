@@ -41,16 +41,20 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(value = "SELECT * FROM products " +
             "INNER JOIN average_ratings " +
             "ON products.rating_id_fk = average_ratings.id " +
+            "WHERE average_ratings.rate >= :minRating " +
+            "AND average_ratings.rate <= :maxRating " +
             "ORDER BY average_ratings.rate ASC " +
             "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
-    List<Product> findAllByRatingASC(int pageSize, int offset);
+    List<Product> findAllByRatingASC(int pageSize, int offset, int minRating, int maxRating);
 
     @Query(value = "SELECT * FROM products " +
             "INNER JOIN average_ratings " +
             "ON products.rating_id_fk = average_ratings.id " +
+            "WHERE average_ratings.rate >= :minRating " +
+            "AND average_ratings.rate <= :maxRating " +
             "ORDER BY average_ratings.rate DESC " +
             "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
-    List<Product> findAllByRatingDESC(int pageSize, int offset);
+    List<Product> findAllByRatingDESC(int pageSize, int offset, int minRating, int maxRating);
 
     @Query(value = "SELECT * FROM products " +
             "WHERE products.price >= :minPrice " +
@@ -65,4 +69,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "ORDER BY products.price DESC " +
             "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
     List<Product> findAllByPriceDESC(int pageSize, int offset, int minPrice, int maxPrice);
+
+//    @Query(value = "SELECT * FROM products " +
+//            "WHERE products.ratingId >= :minRating " +
+//            "AND products.ratingId <= :maxRating " +
+//            "ORDER BY products.ratingId ASC " +
+//            "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+//    List<Product> findAllByRatingASC(int pageSize, int offset, int minRating, int maxRating);
+//
+//    @Query(value = "SELECT * FROM products " +
+//            "WHERE products.ratingId >= :minRating " +
+//            "AND products.ratingId <= :maxRating " +
+//            "ORDER BY products.ratingId DESC " +
+//            "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+//    List<Product> findAllByRatingDESC(int pageSize, int offset, int minRating, int maxRating);
+
 }

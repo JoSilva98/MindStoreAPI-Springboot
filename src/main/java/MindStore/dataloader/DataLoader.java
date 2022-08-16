@@ -43,7 +43,7 @@ public class DataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (!this.productRepository.findAllByRatingASC(5, 0).isEmpty())
+        if (!this.productRepository.findAllByRatingASC(5, 0, 0, 5).isEmpty())
             return;
 
         try {

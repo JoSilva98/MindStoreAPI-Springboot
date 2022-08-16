@@ -71,18 +71,8 @@ public class UserServiceImp implements UserServiceI {
     }
 
     private List<Product> findProducts(Sort.Direction direction, String field, int page, int pageSize) {
-
         if (!ProductFieldsEnum.FIELDS.contains(field))
             throw new NotFoundException("Field not found");
-
-        if (field.equals(ProductFieldsEnum.RATING)) {
-            int offset = (page - 1) * pageSize;
-
-            if (direction.equals(Sort.Direction.ASC))
-                return this.productRepository.findAllByRatingASC(pageSize, offset);
-            else
-                return this.productRepository.findAllByRatingDESC(pageSize, offset);
-        }
 
         return this.productRepository.findAll(
                 PageRequest.of(page - 1, pageSize)
@@ -110,6 +100,25 @@ public class UserServiceImp implements UserServiceI {
 
         return this.mainConverter.listConverter(products, ProductDto.class);
     }
+
+    @Override
+    public List<ProductDto> filterByRating(String direction, int page, int pageSize, int minRating, int maxRating) {
+        if (minRating < 0 || maxRating > 5)
+            throw new NotAllowedValueException("Rating must be between 0 and 5");
+
+        List<Product> products;
+        int offset = (page - 1) * pageSize;
+        switch (direction) {
+            case DirectionEnum.ASC ->
+                    products = this.productRepository.findAllByRatingASC(pageSize, offset, minRating, maxRating);
+            case DirectionEnum.DESC ->
+                    products = this.productRepository.findAllByRatingDESC(pageSize, offset, minRating, maxRating);
+            default -> throw new NotAllowedValueException("Direction not allowed");
+        }
+
+        return this.mainConverter.listConverter(products, ProductDto.class);
+    }
+
     @Override
     public List<ProductDto> getProductByCategory(String direction, String category, int page, int pageSize) {
 
@@ -169,6 +178,8 @@ public class UserServiceImp implements UserServiceI {
         User user = findUserById(id, this.userRepository);
         return this.mainConverter.converter(user, UserDto.class);
     }
+
+
 
     @Override
     @Cacheable(value = "categories", key = "#id")

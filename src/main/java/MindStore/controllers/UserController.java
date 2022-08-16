@@ -37,6 +37,15 @@ public class UserController {
         return this.userServiceI.filterByPrice(direction, page, pageSize, minPrice, maxPrice);
     }
 
+    @GetMapping("/products/rating")
+    public List<ProductDto> filterByRating(@RequestParam(value = "direction") String direction,
+                                          @RequestParam(value = "page") int page,
+                                          @RequestParam(value = "pagesize") int pageSize,
+                                          @RequestParam(value = "min") int minRating,
+                                          @RequestParam(value = "max") int maxRating) {
+        return this.userServiceI.filterByRating(direction, page, pageSize, minRating, maxRating);
+    }
+
     @GetMapping("/products/name")
     public List<ProductDto> getProductByTitle(@RequestParam(value = "title") String title,
                                               @RequestParam(value = "page") int page,

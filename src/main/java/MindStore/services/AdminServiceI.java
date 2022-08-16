@@ -14,6 +14,8 @@ public interface AdminServiceI {
 
     List<ProductDto> getAllProductsByPrice(String direction, int page, int pageSize, int minPrice, int maxPrice);
 
+    List<ProductDto> filterByRating(String direction, int page, int pageSize, int minRating, int maxRating);
+
     ProductDto getProductById(Long id);
 
     List<ProductDto> getProductsByName(String title);
