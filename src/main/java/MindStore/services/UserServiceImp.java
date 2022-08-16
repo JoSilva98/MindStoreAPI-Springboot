@@ -110,6 +110,29 @@ public class UserServiceImp implements UserServiceI {
 
         return this.mainConverter.listConverter(products, ProductDto.class);
     }
+    @Override
+    public List<ProductDto> getProductByCategory(String direction, String category, int page, int pageSize) {
+
+        validatePages(page, pageSize);
+
+        Category categoryEntity = this.categoryRepository.findByCategory(category)
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+
+        List<Product> products;
+        int offset = (page - 1) * pageSize;
+        switch (direction) {
+            case DirectionEnum.ASC ->
+                    products = this.productRepository.findAllByCategoryAsc(categoryEntity.getId(), pageSize, offset);
+            case DirectionEnum.DESC ->
+                    products = this.productRepository.findAllByCategoryDesc(categoryEntity.getId(), pageSize, offset);
+            default -> throw new NotAllowedValueException("Direction not allowed");
+        }
+
+        if (products.isEmpty() && page == 1)
+            throw new NotFoundException("No products found with that category");
+
+        return this.mainConverter.listConverter(products, ProductDto.class);
+    }
 
     @Override
     public List<ProductDto> getProductsByTitle(String title, int page, int pageSize) {
@@ -125,23 +148,6 @@ public class UserServiceImp implements UserServiceI {
         return this.mainConverter.listConverter(productsList, ProductDto.class);
     }
 
-    @Override
-    public List<ProductDto> getProductByCategory(String category, int page, int pageSize) {
-
-        validatePages(page, pageSize);
-
-        Category categoryEntity = this.categoryRepository.findByCategory(category)
-                .orElseThrow(() -> new NotFoundException("Category not found"));
-
-        int offset = (page - 1) * pageSize;
-        List<Product> productList = this.productRepository
-                .findAllByCategory(categoryEntity.getId(), pageSize, offset);
-
-        if (productList.isEmpty() && page == 1)
-            throw new NotFoundException("No products found with that category");
-
-        return this.mainConverter.listConverter(productList, ProductDto.class);
-    }
 
 
     @Override

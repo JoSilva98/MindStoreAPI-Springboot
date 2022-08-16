@@ -45,10 +45,11 @@ public class UserController {
     }
 
     @GetMapping("/products/category")
-    public List<ProductDto> getProductByCategory(@RequestParam(value = "category") String category,
+    public List<ProductDto> getProductByCategory(@RequestParam(value = "direction") String direction,
+                                                 @RequestParam(value = "category") String category,
                                                  @RequestParam(value = "page") int page,
                                                  @RequestParam(value = "pagesize") int pageSize) {
-        return this.userServiceI.getProductByCategory(category, page, pageSize);
+        return this.userServiceI.getProductByCategory(direction, category, page, pageSize);
     }
 
     @GetMapping("/{id}")

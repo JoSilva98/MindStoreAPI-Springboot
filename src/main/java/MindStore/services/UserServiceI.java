@@ -17,7 +17,7 @@ public interface UserServiceI {
 
     List<ProductDto> getProductsByTitle(String title, int page, int pageSize);
 
-    List<ProductDto> getProductByCategory(String category, int page, int pageSize);
+    List<ProductDto> getProductByCategory(String direction, String category, int page, int pageSize);
 
     ProductDto getProductById(Long id);
 

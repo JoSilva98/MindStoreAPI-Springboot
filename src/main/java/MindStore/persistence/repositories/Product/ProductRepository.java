@@ -26,9 +26,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "INNER JOIN categories " +
             "ON products.category_id_fk = categories.id " +
             "WHERE categories.id = :categoryId " +
-            "ORDER BY products.title " +
+            "ORDER BY products.title ASC " +
             "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
-    List<Product> findAllByCategory(int categoryId, int pageSize, int offset);
+    List<Product> findAllByCategoryAsc(int categoryId, int pageSize, int offset);
+
+    @Query(value = "SELECT * FROM products " +
+            "INNER JOIN categories " +
+            "ON products.category_id_fk = categories.id " +
+            "WHERE categories.id = :categoryId " +
+            "ORDER BY products.title DESC " +
+            "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+    List<Product> findAllByCategoryDesc(int categoryId, int pageSize, int offset);
 
     @Query(value = "SELECT * FROM products " +
             "INNER JOIN average_ratings " +
