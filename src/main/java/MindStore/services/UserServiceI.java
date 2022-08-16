@@ -48,4 +48,6 @@ public interface UserServiceI {
     UserDto signUp(UserDto userDto);
 
     UserDto getUserById(Long id);
+
+    List<ProductDto> filterByRating(String direction, int page, int pageSize, int minRating, int maxRating);
 }

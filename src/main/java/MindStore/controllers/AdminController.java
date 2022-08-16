@@ -36,6 +36,15 @@ public class AdminController {
         return this.adminService.getAllProductsByPrice(direction, page, pageSize, minPrice, maxPrice);
     }
 
+    @GetMapping("products/rating")
+    public List<ProductDto> getAllProductsByRating(@RequestParam(value = "direction") String direction,
+                                                   @RequestParam(value = "page") int page,
+                                                   @RequestParam(value = "pagesize") int pageSize,
+                                                   @RequestParam(value = "min") int minRating,
+                                                   @RequestParam(value = "max") int maxRating) {
+        return this.adminService.filterByRating(direction, page, pageSize, minRating, maxRating);
+    }
+
     @GetMapping("products/{id}")
     public ProductDto getProductById(@PathVariable("id") Long id) {
         return this.adminService.getProductById(id);

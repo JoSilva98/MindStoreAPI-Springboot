@@ -25,8 +25,8 @@ public class User extends Person {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false)
-    private String image = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU";
+//    @Column(nullable = false)
+    private String image;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
