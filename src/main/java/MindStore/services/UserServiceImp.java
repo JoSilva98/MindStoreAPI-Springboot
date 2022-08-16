@@ -104,7 +104,7 @@ public class UserServiceImp implements UserServiceI {
     @Override
     public List<ProductDto> filterByRating(String direction, int page, int pageSize, int minRating, int maxRating) {
         if (minRating < 0 || maxRating > 5)
-            throw new NotAllowedValueException("Rating must be between 0 and 5");
+            throw new ConflictException("Rating must be between 0 and 5");
 
         List<Product> products;
         int offset = (page - 1) * pageSize;
@@ -157,8 +157,6 @@ public class UserServiceImp implements UserServiceI {
         return this.mainConverter.listConverter(productsList, ProductDto.class);
     }
 
-
-
     @Override
     @Cacheable(value = "products", key = "#id")
     public ProductDto getProductById(Long id) {
@@ -178,8 +176,6 @@ public class UserServiceImp implements UserServiceI {
         User user = findUserById(id, this.userRepository);
         return this.mainConverter.converter(user, UserDto.class);
     }
-
-
 
     @Override
     @Cacheable(value = "categories", key = "#id")
