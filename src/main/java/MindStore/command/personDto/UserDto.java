@@ -30,6 +30,6 @@ public class UserDto extends PersonDto {
     @DateTimeFormat
     private LocalDate dateOfBirth;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Size(max = 500, message = "Image url too big")
     private String image;
 }

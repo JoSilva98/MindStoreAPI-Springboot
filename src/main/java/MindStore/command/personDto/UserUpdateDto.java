@@ -18,4 +18,7 @@ public class UserUpdateDto extends PersonUpdateDto {
 
     @Size(min = 5, max = 40, message = "Adress should have at least 5 characters")
     private String address;
+
+    @Size(max = 500, message = "Image url too big")
+    private String image;
 }
