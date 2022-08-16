@@ -428,6 +428,7 @@ public class UserServiceImp implements UserServiceI {
                 });
 
         User userToSave = this.mainConverter.converter(userDto, User.class);
+        userToSave.setImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnOW__LJ0sfQ3YpfCqs0X1dj31RjTAqvZirg&usqp=CAU");
         Role role = findRoleById(RoleEnum.USER, this.roleRepository);
 
         userToSave.setRoleId(role);

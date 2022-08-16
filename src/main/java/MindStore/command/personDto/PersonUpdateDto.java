@@ -30,4 +30,6 @@ public class PersonUpdateDto {
     @Size(min = 8, max = 16, message = "The password must be between 8 and 30 characters")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    private String image;
 }
