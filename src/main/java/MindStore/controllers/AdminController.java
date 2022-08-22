@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/admins")
 @AllArgsConstructor
-@CrossOrigin(origins = "https://mindshop-api.herokuapp.com")
+@CrossOrigin(origins = "https://mindstore.netlify.app")
 public class AdminController {
     private AdminServiceI adminService;
 
