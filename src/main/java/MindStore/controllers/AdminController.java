@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/admins")
 @AllArgsConstructor
-//@CrossOrigin(origins = {"https://mindstore.netlify.app","http://localhost:3000"})
+@CrossOrigin(origins = {"https://mindstore.netlify.app","http://localhost:3000"})
 public class AdminController {
     private AdminServiceI adminService;
 
