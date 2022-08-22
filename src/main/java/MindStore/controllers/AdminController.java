@@ -16,10 +16,11 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/admins")
 @AllArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "https://mindshop-api.herokuapp.com")
 public class AdminController {
     private AdminServiceI adminService;
 
+//    @CrossOrigin(origins = "http://localhost:8080")
     @GetMapping("products")
     public List<ProductDto> getAllProducts(@RequestParam(value = "direction") String direction,
                                            @RequestParam(value = "field") String field,
