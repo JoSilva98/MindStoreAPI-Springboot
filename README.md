@@ -87,6 +87,7 @@ Required JSON body (**Sign Up** endpoint):
 | Request | Description | Link          |
 |---------|-------------|---------------|
 | `POST`  | `Login`     | /login        |
+
 Required JSON body (**Login** endpoint):
 ```
 {
@@ -153,6 +154,7 @@ Required JSON body (**Update User** endpoint):
 | Request  | Description   | Link         |
 |----------|---------------|--------------|
 | `POST`   | Buy Products  | buy/{userid  |
+
 Required JSON body (**Buy Products** endpoint) (value to be paid):
 ```
 10000
@@ -180,6 +182,7 @@ Required JSON body (**Buy Products** endpoint) (value to be paid):
 |---------|-------------|-----------------|
 | `POST`  | Add User    | /users/{userid} |
 | `PATCH` | Update User | /users/{userid} |
+
 Required JSON body (**Add User** and **Update User** endpoints):
 ```
 {
@@ -207,6 +210,7 @@ Required JSON body (**Add User** and **Update User** endpoints):
 |---------|-----------------------|--------------------------------|------------|
 | `POST`  | Add Product           | /products                      |            |
 | `PATCH` | Update Product        | /products/{productid}          |            |
+
 Required JSON body (**Add Product** and **Update Product** endpoints):
 ```
 {
