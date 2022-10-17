@@ -25,7 +25,6 @@ public class User extends Person {
     @Column(nullable = false)
     private String address;
 
-//    @Column(nullable = false)
     private String image;
 
     @ManyToMany(cascade = CascadeType.MERGE)
@@ -45,9 +44,5 @@ public class User extends Person {
 
     public void removeProductFromCart(Product product) {
         this.shoppingCart.remove(product);
-    }
-
-    public void removeProductById(int id) {
-        this.shoppingCart.remove(id);
     }
 }

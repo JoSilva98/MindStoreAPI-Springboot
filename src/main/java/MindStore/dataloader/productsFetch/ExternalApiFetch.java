@@ -27,7 +27,6 @@ public class ExternalApiFetch {
             if (products != null) {
                 for (ApiProduct product : products) {
                     Product productEntity = mainConverter.converter(product, Product.class);
-                    //AverageRating ratingEntity = this.mainConverter.converter(product.getRating(), AverageRating.class);
 
                     Category category;
                     if (categoryRepository.findByCategory(product.getCategory()).isEmpty()) {

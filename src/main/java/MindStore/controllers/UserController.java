@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
-//@CrossOrigin(origins = {"https://mindstore.netlify.app","http://localhost:3000"})
 public class UserController {
     private UserServiceI userServiceI;
 
@@ -40,10 +39,10 @@ public class UserController {
 
     @GetMapping("/products/rating")
     public List<ProductDto> filterByRating(@RequestParam(value = "direction") String direction,
-                                          @RequestParam(value = "page") int page,
-                                          @RequestParam(value = "pagesize") int pageSize,
-                                          @RequestParam(value = "min") int minRating,
-                                          @RequestParam(value = "max") int maxRating) {
+                                           @RequestParam(value = "page") int page,
+                                           @RequestParam(value = "pagesize") int pageSize,
+                                           @RequestParam(value = "min") int minRating,
+                                           @RequestParam(value = "max") int maxRating) {
         return this.userServiceI.filterByRating(direction, page, pageSize, minRating, maxRating);
     }
 

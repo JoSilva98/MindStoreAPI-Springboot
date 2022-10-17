@@ -85,7 +85,7 @@ public class UserServiceImp implements UserServiceI {
 
         validatePages(page, pageSize);
 
-        if (minPrice < 0 || maxPrice > 5000)
+        if (minPrice < 0 || maxPrice < 0 || maxPrice > 5000 || minPrice > maxPrice)
             throw new NotAllowedValueException("Price must be between 0 and 5000");
 
         List<Product> products;
@@ -103,7 +103,7 @@ public class UserServiceImp implements UserServiceI {
 
     @Override
     public List<ProductDto> filterByRating(String direction, int page, int pageSize, int minRating, int maxRating) {
-        if (minRating < 0 || maxRating > 5)
+        if (minRating < 0 || maxRating < 0 || maxRating > 5 || minRating > maxRating)
             throw new ConflictException("Rating must be between 0 and 5");
 
         List<Product> products;
@@ -429,7 +429,6 @@ public class UserServiceImp implements UserServiceI {
                     "irg&usqp=CAU");
         }
         Role role = findRoleById(RoleEnum.USER, this.roleRepository);
-
 
         userToSave.setRoleId(role);
         userToSave.setPassword(this.encoder.encode(userToSave.getPassword()));
