@@ -68,6 +68,7 @@ Our API uses [AuthO](https://auth0.com/) as a way of authentication/authorizatio
 | Request | Description | Link          |
 |---------|-------------|---------------|
 | `POST`  | `SignUp`    | /api/v1/users |
+
 Required JSON body (**Sign Up** endpoint):
 ```
 {
@@ -115,6 +116,7 @@ Where `direction=ASC`, `field=id`, `page=1` and `pagesize=10` are the parameters
 | Request  | Description  | Link       |
 |----------|--------------|------------|
 | `PATCH`  | Update User  | /{userid}  |
+
 Required JSON body (**Update User** endpoint):
 ```
 {
